@@ -73,6 +73,7 @@
     ]
   },
   "scripts": {
+    "extbuild": "concurrently \"rollup -c -w\" \"webpack --mode production --devtool hidden-source-map\""
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
