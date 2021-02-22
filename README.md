@@ -38,8 +38,12 @@ Currently the issues are:
 
 ## Release Notes
 
-### 1.0.0
+### 0.0.1
 
 Initial release of my first extension.
+
+### 0.0.2
+
+Increased `font-size` and `padding-top` to improve readability
 
 pls be nice ☺
