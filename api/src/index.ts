@@ -67,7 +67,6 @@ const main = async () => {
     app.get('/todo', isAuth, async (req, res) => {
         const FilterDate: Date = new Date();
         FilterDate.setDate(FilterDate.getDate() - 8);
-        console.log(FilterDate);
         const todos = await ToDo.find({
             where: [{ 
                 creatorId: req.userId,
@@ -107,11 +106,16 @@ const main = async () => {
         todo.completedDate = new Date();
         await todo.save()
 
+        const FilterDate: Date = new Date();
+        FilterDate.setDate(FilterDate.getDate() - 8);
         const todos = await ToDo.find({
-            where: { 
-                creatorId: req.userId, 
-                completedDate: new Date()
-            },
+            where: [{ 
+                creatorId: req.userId,
+                completedDate: MoreThan(FilterDate)
+            }, { 
+                creatorId: req.userId,
+                completedDate: IsNull()
+            }],
             order: {
                 completed: 'ASC',
                 id: 'ASC'
