@@ -6,7 +6,7 @@
   let accessToken = "";
   let loading = true;
   let user: User | null = null;
-  let page: "todos" | "contact" = tsvscode.getState()?.page || "todos";
+  let page: "todos" | "rules" = tsvscode.getState()?.page || "todos";
 
   $: {
     tsvscode.setState({ page });
@@ -44,11 +44,16 @@
     <ToDos {user} {accessToken} />
     <button
       on:click={() => {
-        page = "contact";
-      }}>Go to contact page</button
+        page = "rules";
+      }}>Go to rules</button
     >
   {:else}
-    <div>Contact me here: edfsfsdf</div>
+    <div>Rules:</div>
+    <ol>
+      <li>
+        <p>To Do items are removed 30 days after being completed.</p>
+      </li>
+    </ol>
     <button
       on:click={() => {
         page = "todos";
@@ -69,3 +74,10 @@
     }}>Login with GitHub</button
   >
 {/if}
+
+<style>
+  li {
+    padding-top: 0.5rem;
+    font-size: calc(11px + .5rem);
+  }
+</style>
