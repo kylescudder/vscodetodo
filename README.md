@@ -10,6 +10,12 @@ For example if there is an image subfolder under your extension project workspac
 
 ![a to do list](https://i.imgur.com/9bDCkFt.png\ "Pretty basic stuff")
 
+Now with categories!
+![categories](https://i.imgur.com/25fsRUi.png\ "Now with categories!")
+
+To Do items grouped together by category
+![grouped by categories](https://i.imgur.com/SNJZtm6.png\ "Grouped by their categories")
+
 After 30 days of being completed, To Do items are removed to reduce clutter over long periods of time.
 
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
@@ -17,8 +23,8 @@ After 30 days of being completed, To Do items are removed to reduce clutter over
 ## Requirements
 
 1) VS Code 1.53.0
-1) Things to do
 1) A GitHub login
+1) Things to do
 
 <!-- ## Extension Settings
  -->
@@ -51,5 +57,9 @@ Increased `font-size` and `padding-top` to improve readability
 ### 0.0.3
 
 To Do items are removed 30 days after being completed.
+
+### 0.0.4
+
+Added categories for better organisation
 
 pls be nice ☺
