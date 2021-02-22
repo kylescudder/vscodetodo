@@ -8,7 +8,7 @@ A short to do list that allows users to track what they have done for a given pi
 
 For example if there is an image subfolder under your extension project workspace:
 
-\!\[Pretty basic stuff\]\(https://i.imgur.com/9bDCkFt.png\)
+![a to do list](https://i.imgur.com/9bDCkFt.png\ "Pretty basic stuff")
 
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
