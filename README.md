@@ -10,6 +10,8 @@ For example if there is an image subfolder under your extension project workspac
 
 ![a to do list](https://i.imgur.com/9bDCkFt.png\ "Pretty basic stuff")
 
+After 30 days of being completed, To Do items are removed to reduce clutter over long periods of time.
+
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
 ## Requirements
@@ -45,5 +47,9 @@ Initial release of my first extension.
 ### 0.0.2
 
 Increased `font-size` and `padding-top` to improve readability
+
+### 0.0.3
+
+To Do items are removed 30 days after being completed.
 
 pls be nice ☺

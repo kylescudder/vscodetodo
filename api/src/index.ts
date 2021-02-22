@@ -1,7 +1,7 @@
 require("dotenv-safe").config();
 import 'reflect-metadata'
 import express from 'express';
-import { createConnection } from 'typeorm'
+import { createConnection, IsNull, MoreThan } from 'typeorm'
 import { __prod__ } from './constants';
 import { Strategy as GitHubStrategy } from "passport-github"
 import passport from 'passport';
@@ -65,8 +65,17 @@ const main = async () => {
     );
 
     app.get('/todo', isAuth, async (req, res) => {
+        const FilterDate: Date = new Date();
+        FilterDate.setDate(FilterDate.getDate() - 8);
+        console.log(FilterDate);
         const todos = await ToDo.find({
-            where: { creatorId: req.userId },
+            where: [{ 
+                creatorId: req.userId,
+                completedDate: MoreThan(FilterDate)
+            }, { 
+                creatorId: req.userId,
+                completedDate: IsNull()
+            }],
             order: {
                 completed: 'ASC',
                 id: 'ASC'
@@ -86,7 +95,6 @@ const main = async () => {
     });
 
     app.put('/todo', isAuth, async (req, res) => {
-        console.log(req.body.id);
         const todo = await ToDo.findOne(req.body.id);
         if (!todo) {
             res.send({ todo: null });
@@ -96,11 +104,14 @@ const main = async () => {
             throw new Error("You are not authorised to do this");
         }
         todo.completed = !todo.completed;
+        todo.completedDate = new Date();
         await todo.save()
 
-
         const todos = await ToDo.find({
-            where: { creatorId: req.userId },
+            where: { 
+                creatorId: req.userId, 
+                completedDate: new Date()
+            },
             order: {
                 completed: 'ASC',
                 id: 'ASC'

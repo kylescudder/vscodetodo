@@ -15,6 +15,9 @@ export class ToDo extends BaseEntity{
     @Column()
     creatorId: number;
 
+    @Column()
+    completedDate: Date;
+    
     @ManyToOne(() => User, (u) => u.todos)
     @JoinColumn({ name: "creatorId"})
     creator: Promise<User>;
