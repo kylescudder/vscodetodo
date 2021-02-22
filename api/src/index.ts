@@ -10,6 +10,7 @@ import jwt from "jsonwebtoken";
 import cors from 'cors';
 import { ToDo } from './entities/todo';
 import { isAuth } from './isAuth';
+import { Categories } from './entities/Categories';
 
 const main = async () => {
     await createConnection({
@@ -77,10 +78,20 @@ const main = async () => {
             }],
             order: {
                 completed: 'ASC',
+                categorieText: 'ASC',
                 id: 'ASC'
-            }
+            },
         });
         res.send({ todos });
+    });
+
+    app.get('/categories', isAuth, async (_req, res) => {
+        const categorie = await Categories.find({
+            order: {
+                text: 'ASC'
+            }
+        });
+        res.send({ categorie });
     });
 
     app.post('/todo', isAuth, async (req, res) => {
@@ -88,6 +99,7 @@ const main = async () => {
             const todo = await ToDo.create({
                 text: req.body.text, 
                 creatorId: req.userId,
+                categorieText: req.body.categorieText
             }).save();
             res.send({ todo });
         }

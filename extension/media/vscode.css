@@ -74,7 +74,8 @@ button.secondary:hover {
 }
 
 input:not([type='checkbox']),
-textarea {
+textarea,
+select {
 	display: block;
 	width: 100%;
 	border: none;
@@ -88,4 +89,9 @@ textarea {
 input::placeholder,
 textarea::placeholder {
 	color: var(--vscode-input-placeholderForeground);
+}
+.card {
+	padding: 20px;
+	border: 2px solid var(--vscode-button-background);
+	margin-block-start: -6px;
 }

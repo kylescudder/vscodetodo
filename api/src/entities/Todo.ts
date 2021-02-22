@@ -9,16 +9,19 @@ export class ToDo extends BaseEntity{
     @Column("text")
     text: string;
 
+
     @Column("boolean", { default: false })
     completed: boolean;
 
     @Column()
     creatorId: number;
+    @ManyToOne(() => User, (u) => u.todos)
+    @JoinColumn({ name: "creatorId"})
+    creator: Promise<User>;
 
     @Column()
     completedDate: Date;
     
-    @ManyToOne(() => User, (u) => u.todos)
-    @JoinColumn({ name: "creatorId"})
-    creator: Promise<User>;
+    @Column()
+    categorieText: string;
 }
