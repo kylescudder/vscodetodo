@@ -45,7 +45,7 @@
     <button
       on:click={() => {
         page = "rules";
-      }}>Go to rules</button
+      }}>Go to rule</button
     >
   {:else}
     <div>Rules:</div>
@@ -78,6 +78,6 @@
 <style>
   li {
     padding-top: 0.5rem;
-    font-size: calc(11px + .5rem);
+    font-size: calc(11px + 0.5rem);
   }
 </style>

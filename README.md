@@ -62,4 +62,12 @@ To Do items are removed 30 days after being completed.
 
 Added categories for better organisation
 
+### 0.0.5
+
+`<ul>` brought back
+
+### 0.0.6
+
+If a category has no current To Dos then it is hidden to reduce clutter.
+
 pls be nice ☺

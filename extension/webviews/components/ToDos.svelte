@@ -1,10 +1,11 @@
-<script lang="ts">
-  import { onMount } from "svelte";
-  import type { User } from "../types";
+<script lang='ts'>
+  import { onMount } from 'svelte';
+  import { children } from 'svelte/internal';
+  import type { User } from '../types';
 
   export let user: User;
   export let accessToken: string;
-  let text = "";
+  let text = '';
   let todos: Array<{
     text: String;
     completed: boolean;
@@ -12,7 +13,7 @@
     categorieText: string;
   }> = [];
   let selected: number;
-  let answer = "";
+  let answer = '';
   let categorie: Array<{
     id: number;
     text: string;
@@ -21,13 +22,13 @@
 
   async function addToDo(t: string, categorieText: string) {
     const response = await fetch(`${apiBaseUrl}/todo`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         text: t,
         categorieText: categorieText,
       }),
       headers: {
-        "content-type": "application/json",
+        'content-type': 'application/json',
         authorization: `Bearer ${accessToken}`,
       },
     });
@@ -35,10 +36,10 @@
     todos = [todo, ...todos];
   }
   onMount(async () => {
-    window.addEventListener("message", async (event) => {
+    window.addEventListener('message', async (event) => {
       const message = event.data; // The json data that the extension sent
       switch (message.type) {
-        case "new-todo":
+        case 'new-todo':
           addToDo(message.value, selected.toString());
           break;
       }
@@ -60,25 +61,38 @@
     for (let i = 0; i < categorie.length; i++) {
       const element = categorie[i];
       if (element.id % 1) {
-        element.randomColour = "red";
+        element.randomColour = 'red';
       } else if (element.id % 2) {
-        element.randomColour = "green";
+        element.randomColour = 'green';
       } else if (element.id % 3) {
-        element.randomColour = "brown";
+        element.randomColour = 'brown';
       } else if (element.id % 4) {
-        element.randomColour = "orange";
+        element.randomColour = 'orange';
       } else if (element.id % 5) {
-        element.randomColour = "blue";
+        element.randomColour = 'blue';
       } else if (element.id % 6) {
-        element.randomColour = "pink";
+        element.randomColour = 'pink';
       } else if (element.id % 7) {
-        element.randomColour = "yellow";
+        element.randomColour = 'yellow';
       } else if (element.id % 8) {
-        element.randomColour = "teal";
+        element.randomColour = 'teal';
       } else if (element.id % 9) {
-        element.randomColour = "cyan";
+        element.randomColour = 'cyan';
       }
     }
+    setTimeout(function () {
+      var arr = Array.from(document.getElementsByClassName('card'));
+      console.log('array length', arr.length);
+      for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        console.log('element', element);
+        const lists = element.children[1];
+        console.log('lists', lists);
+        if (lists.childElementCount == 0) {
+          element.setAttribute('style', 'display: none;');
+        }
+      }
+    }, 500);
   });
 </script>
 
@@ -86,11 +100,11 @@
 <form
   on:submit|preventDefault={async () => {
     addToDo(text, selected.toString());
-    text = "";
+    text = '';
   }}
 >
   <input bind:value={text} />
-  <select bind:value={selected} on:blur={() => (answer = "")}>
+  <select bind:value={selected} on:blur={() => (answer = '')}>
     {#each categorie as categories}
       <option value={categories.text}>
         {categories.text}
@@ -99,39 +113,41 @@
   </select>
 </form>
 {#each categorie as categories (categories.id)}
-  <div class="card">
-    <h2 style="color:{categories.randomColour}">{categories.text}</h2>
-    {#each todos as todo (todo.id)}
-      {#if categories.text === todo.categorieText}
-        <article
-          class:completed={todo.completed}
-          style="color:{categories.randomColour}"
-          on:click={async () => {
-            todo.completed = !todo.completed;
-            const response = await fetch(`${apiBaseUrl}/todo`, {
-              method: "PUT",
-              body: JSON.stringify({
-                id: todo.id,
-              }),
-              headers: {
-                "content-type": "application/json",
-                authorization: `Bearer ${accessToken}`,
-              },
-            });
-            if (todo.completed) {
-              tsvscode.postMessage({
-                type: "onInfo",
-                value: todo.text + " completed! Well done 🥳",
+  <div class='card'>
+    <h2 style='color:{categories.randomColour}'>{categories.text}</h2>
+    <ul>
+      {#each todos as todo (todo.id)}
+        {#if categories.text === todo.categorieText}
+          <li
+            class:completed={todo.completed}
+            style='color:{categories.randomColour}'
+            on:click={async () => {
+              todo.completed = !todo.completed;
+              const response = await fetch(`${apiBaseUrl}/todo`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                  id: todo.id,
+                }),
+                headers: {
+                  'content-type': 'application/json',
+                  authorization: `Bearer ${accessToken}`,
+                },
               });
-            }
-            const payload = await response.json();
-            todos = payload.todos;
-          }}
-        >
-          {todo.text}
-        </article>
-      {/if}
-    {/each}
+              if (todo.completed) {
+                tsvscode.postMessage({
+                  type: 'onInfo',
+                  value: todo.text + ' completed! Well done 🥳',
+                });
+              }
+              const payload = await response.json();
+              todos = payload.todos;
+            }}
+          >
+            {todo.text}
+          </li>
+        {/if}
+      {/each}
+    </ul>
   </div>
 {/each}
 

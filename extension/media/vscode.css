@@ -95,3 +95,6 @@ textarea::placeholder {
 	border: 2px solid var(--vscode-button-background);
 	margin-block-start: -6px;
 }
+.hidden {
+	opacity: 0;
+}
