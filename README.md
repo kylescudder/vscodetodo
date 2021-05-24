@@ -73,5 +73,6 @@ If a category has no current To Dos then it is hidden to reduce clutter.
 ### 0.0.7
 
 Hidden categories now re-appear without needing a reload when added to. 
+Reversed colouring statement to increase variation of category colouring.
 
 pls be nice ☺

@@ -63,24 +63,17 @@
     categorie = categoriePayload.categorie;
     for (let i = 0; i < categorie.length; i++) {
       const element = categorie[i];
-      if (element.id % 1) {
-        element.randomColour = 'red';
-      } else if (element.id % 2) {
-        element.randomColour = 'green';
-      } else if (element.id % 3) {
-        element.randomColour = 'brown';
-      } else if (element.id % 4) {
-        element.randomColour = 'orange';
-      } else if (element.id % 5) {
-        element.randomColour = 'blue';
-      } else if (element.id % 6) {
+      console.log(element.id)
+      if (element.id % 5 == 0) {
+        element.randomColour = 'lightblue';
+      } else if (element.id % 4 == 0) {
         element.randomColour = 'pink';
-      } else if (element.id % 7) {
+      } else if (element.id % 3 == 0) {
+        element.randomColour = 'lightgreen';
+      } else if (element.id % 2 == 0) {
+        element.randomColour = 'red';
+      } else if (element.id % 1 == 0) {
         element.randomColour = 'yellow';
-      } else if (element.id % 8) {
-        element.randomColour = 'teal';
-      } else if (element.id % 9) {
-        element.randomColour = 'cyan';
       }
     }
     setTimeout(function () {
@@ -91,12 +84,9 @@
 
 function hideEmptyCategories() {
   var arr=Array.from(document.getElementsByClassName('card'));
-  console.log('array length',arr.length);
   for(let i=0;i<arr.length;i++) {
     const element=arr[i];
-    console.log('element',element);
     const lists=element.children[1];
-    console.log('lists',lists);
     if(lists.childElementCount==0) {
       element.removeAttribute('style');
       element.setAttribute('style','display: none;');
