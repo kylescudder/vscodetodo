@@ -70,4 +70,8 @@ Added categories for better organisation
 
 If a category has no current To Dos then it is hidden to reduce clutter.
 
+### 0.0.7
+
+Hidden categories now re-appear without needing a reload when added to. 
+
 pls be nice ☺

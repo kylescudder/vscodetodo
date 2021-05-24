@@ -34,6 +34,9 @@
     });
     const { todo } = await response.json();
     todos = [todo, ...todos];
+    setTimeout(function () {
+      hideEmptyCategories();
+    }, 100);
   }
   onMount(async () => {
     window.addEventListener('message', async (event) => {
@@ -81,19 +84,28 @@
       }
     }
     setTimeout(function () {
-      var arr = Array.from(document.getElementsByClassName('card'));
-      console.log('array length', arr.length);
-      for (let i = 0; i < arr.length; i++) {
-        const element = arr[i];
-        console.log('element', element);
-        const lists = element.children[1];
-        console.log('lists', lists);
-        if (lists.childElementCount == 0) {
-          element.setAttribute('style', 'display: none;');
-        }
-      }
-    }, 500);
+      hideEmptyCategories();
+    }, 100);
   });
+
+
+function hideEmptyCategories() {
+  var arr=Array.from(document.getElementsByClassName('card'));
+  console.log('array length',arr.length);
+  for(let i=0;i<arr.length;i++) {
+    const element=arr[i];
+    console.log('element',element);
+    const lists=element.children[1];
+    console.log('lists',lists);
+    if(lists.childElementCount==0) {
+      element.removeAttribute('style');
+      element.setAttribute('style','display: none;');
+    } else {
+      element.removeAttribute('style');
+      element.setAttribute('style','display: block;');
+    }
+  }
+}
 </script>
 
 <div>Hello {user.name}</div>
