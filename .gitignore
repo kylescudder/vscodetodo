@@ -5,3 +5,4 @@ api/node_modules
 .vscode-test/
 *.vsix
 extension/media
+node_modules
