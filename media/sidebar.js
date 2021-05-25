@@ -772,7 +772,7 @@ var app = (function () {
     				set_style(h2, "color", /*categories*/ ctx[15].randomColour);
     			}
 
-    			if (dirty & /*categorie, todos, fetch, JSON, accessToken, getToDo, console*/ 330) {
+    			if (dirty & /*categorie, todos, fetch, JSON, accessToken, getToDo, console, tsvscode*/ 330) {
     				each_value_1 = /*todos*/ ctx[3];
     				validate_each_argument(each_value_1);
     				validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
@@ -935,7 +935,7 @@ var app = (function () {
     				select_option(select, /*selected*/ ctx[4]);
     			}
 
-    			if (dirty & /*todos, categorie, fetch, JSON, accessToken, getToDo, console*/ 330) {
+    			if (dirty & /*todos, categorie, fetch, JSON, accessToken, getToDo, console, tsvscode*/ 330) {
     				each_value = /*categorie*/ ctx[6];
     				validate_each_argument(each_value);
     				validate_each_keys(ctx, each_value, get_each_context, get_key);
@@ -1166,13 +1166,14 @@ var app = (function () {
     			console.log("Getting todos failed");
     		});
 
-    		if (todo.completed) ; // tsvscode.postMessage({
-    		//   type: 'onInfo',
+    		if (todo.completed) {
+    			tsvscode.postMessage({
+    				type: "onInfo",
+    				value: todo.text + " completed! Well done 🥳"
+    			});
+    		}
 
-    		//   value: todo.text + ' completed! Well done 🥳',
-    		// });
     		const payload = await response.json();
-
     		$$invalidate(3, todos = payload.todos);
     	};
 
