@@ -1,8 +1,8 @@
 out
 dist
-extension/node_modules
+node_modules
 api/node_modules
 .vscode-test/
 *.vsix
-extension/media
+media
 node_modules
