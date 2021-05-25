@@ -74,5 +74,6 @@ If a category has no current To Dos then it is hidden to reduce clutter.
 
 Hidden categories now re-appear without needing a reload when added to. 
 Reversed colouring statement to increase variation of category colouring.
+Converted db from Postgres to MongoDB to make hosting easier for me.
 
 pls be nice ☺
