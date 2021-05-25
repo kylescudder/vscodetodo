@@ -1,1 +1,1 @@
-export const apiBaseUrl = `https://kylescudder-api.eu-4.evennode.com`;
+export const apiBaseUrl = `http://kylescudder-api.eu-4.evennode.com`;
