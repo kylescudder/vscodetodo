@@ -32,11 +32,25 @@
         authorization: `Bearer ${accessToken}`,
       },
     });
-    const { todo } = await response.json();
-    todos = [todo, ...todos];
+    getToDo()
+    .then(() => {
+    })
+    .catch(() => {
+      console.log('Getting todos failed')
+    })
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
+  }
+  async function getToDo() {
+    const response = await fetch(`${apiBaseUrl}/todo`, {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const payload = await response.json();
+    todos = payload.todos;
+    return todos
   }
   onMount(async () => {
     window.addEventListener('message', async (event) => {
@@ -47,13 +61,12 @@
           break;
       }
     });
-    const response = await fetch(`${apiBaseUrl}/todo`, {
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const payload = await response.json();
-    todos = payload.todos;
+    getToDo()
+    .then(() => {
+    })
+    .catch(() => {
+      console.log('Getting todos failed')
+    })
     const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
@@ -63,7 +76,6 @@
     categorie = categoriePayload.categorie;
     for (let i = 0; i < categorie.length; i++) {
       const element = categorie[i];
-      console.log(element.id)
       if (element.id % 5 == 0) {
         element.randomColour = 'lightblue';
       } else if (element.id % 4 == 0) {
@@ -135,6 +147,12 @@ function hideEmptyCategories() {
                   authorization: `Bearer ${accessToken}`,
                 },
               });
+              getToDo()
+              .then(() => {
+              })
+              .catch(() => {
+                console.log('Getting todos failed')
+              })
               if (todo.completed) {
                 tsvscode.postMessage({
                   type: 'onInfo',
