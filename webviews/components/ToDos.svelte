@@ -21,7 +21,7 @@
   }> = [];
 
   async function addToDo(t: string, categorieText: string) {
-    const response = await fetch(`${apiBaseUrl}/todo`, {
+    const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
       method: 'POST',
       body: JSON.stringify({
         text: t,
@@ -43,7 +43,7 @@
     }, 100);
   }
   async function getToDo() {
-    const response = await fetch(`${apiBaseUrl}/todo`, {
+    const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -67,7 +67,7 @@
     .catch(() => {
       console.log('Getting todos failed')
     })
-    const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
+    const categorieResponse = await fetch(`http://kylescudder-api.eu-4.evennode.com/categories`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -137,7 +137,7 @@ function hideEmptyCategories() {
             style='color:{categories.randomColour}'
             on:click={async () => {
               todo.completed = !todo.completed;
-              const response = await fetch(`${apiBaseUrl}/todo`, {
+              const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
                 method: 'PUT',
                 body: JSON.stringify({
                   id: todo.id,
