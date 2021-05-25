@@ -5,7 +5,7 @@ import { TokenManager } from './TokenManager';
 export const authenticate = (fn: () => void) => {
     const app = polka();
 
-    app.get(`/auth/:token`, async (req, res) => {
+    app.get(`/auth/:token`, async (req: any, res: any) => {
         const { token } = req.params;
         if (!token) {
             res.end(`<h1>Something went wrong</h1>`);
