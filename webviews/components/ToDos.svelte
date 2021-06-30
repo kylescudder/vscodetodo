@@ -51,9 +51,10 @@
       },
     });
     const payload = await response.json();
-    todos = payload.todos;
+    todos = payload.data;
     return todos
   }
+
   onMount(async () => {
     window.addEventListener('message', async (event) => {
       const message = event.data; // The json data that the extension sent
@@ -76,7 +77,8 @@
       },
     });
     const categoriePayload = await categorieResponse.json();
-    categorie = categoriePayload.categorie;
+    categorie = categoriePayload.payload;
+    selected = categorie[0].text
     for (let i = 0; i < categorie.length; i++) {
       const element = categorie[i];
       if (element.id % 5 == 0) {
