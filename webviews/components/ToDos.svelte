@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { children } from 'svelte/internal';
   import type { User } from '../types';
+  import { apiBaseUrl } from '../../src/constants';
 
   export let user: User;
   export let accessToken: string;
@@ -21,7 +22,7 @@
   }> = [];
 
   async function addToDo(t: string, categorieText: string) {
-    const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
+    const response = await fetch(`${apiBaseUrl}/todo`, {
       method: 'POST',
       body: JSON.stringify({
         text: t,
@@ -42,8 +43,9 @@
       hideEmptyCategories();
     }, 100);
   }
+
   async function getToDo() {
-    const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
+    const response = await fetch(`${apiBaseUrl}/todo`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -67,7 +69,8 @@
     .catch(() => {
       console.log('Getting todos failed')
     })
-    const categorieResponse = await fetch(`http://kylescudder-api.eu-4.evennode.com/categories`, {
+
+    const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -137,7 +140,7 @@ function hideEmptyCategories() {
             style='color:{categories.randomColour}'
             on:click={async () => {
               todo.completed = !todo.completed;
-              const response = await fetch(`http://kylescudder-api.eu-4.evennode.com/todo`, {
+              const response = await fetch(`${apiBaseUrl}/todo`, {
                 method: 'PUT',
                 body: JSON.stringify({
                   id: todo.id,
