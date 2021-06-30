@@ -24,7 +24,7 @@
             },
           });
           const data = await response.json();
-          user = data.user;
+          user = data.users;
           loading = false;
           break;
       }

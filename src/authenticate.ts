@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { apiBaseUrl } from './constants';
+import { apiBaseUrl, extensionAPIPort } from './constants';
+
 import * as polka from "polka";
 import { TokenManager } from './TokenManager';
 export const authenticate = (fn: () => void) => {
@@ -14,11 +15,11 @@ export const authenticate = (fn: () => void) => {
         TokenManager.setToken(token);
         fn();
 
-        res.end(`<h1>Authentication was successful, you can close this window now.</h1>`);
+        res.end(`<h1>Authentication was successful, please close this window and reload the extension.</h1>`);
         (app as any).server.close();
     });
 
-    app.listen(54321, (err: Error) => {
+    app.listen(extensionAPIPort, (err: Error) => {
         if (err) {
             vscode.window.showErrorMessage(err.message);
         } else {

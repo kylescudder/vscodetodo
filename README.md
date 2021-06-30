@@ -78,4 +78,9 @@ Converted db from Postgres to MongoDB to make hosting easier for me.
 API moved to seperate project to make hosting simpler for me.
 Removed unnecessary layers of directories
 
+### 0.0.8
+
+Now uses hosted API rather than having to have locally run Express server
+Fixed issue with selected categorie now being set on load
+
 pls be nice ☺
