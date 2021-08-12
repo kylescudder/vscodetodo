@@ -98,3 +98,6 @@ textarea::placeholder {
 .hidden {
 	opacity: 0;
 }
+li {
+	cursor: pointer;
+}
