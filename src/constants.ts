@@ -1,1 +1,3 @@
-export const apiBaseUrl = `http://kylescudder-api.eu-4.evennode.com`;
+export const apiBaseUrl = `https://resonant-acute-ranunculus.glitch.me/VSCodeToDo`;
+//export const apiBaseUrl = `http://localhost:5556/VSCodeToDo`;
+export const extensionAPIPort = `54322`;
