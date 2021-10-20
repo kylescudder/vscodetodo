@@ -79,20 +79,6 @@
     const categoriePayload = await categorieResponse.json();
     categorie = categoriePayload.payload;
     selected = categorie[0].text
-    for (let i = 0; i < categorie.length; i++) {
-      const element = categorie[i];
-      if (element.id % 5 == 0) {
-        element.randomColour = 'lightblue';
-      } else if (element.id % 4 == 0) {
-        element.randomColour = 'pink';
-      } else if (element.id % 3 == 0) {
-        element.randomColour = 'lightgreen';
-      } else if (element.id % 2 == 0) {
-        element.randomColour = 'red';
-      } else if (element.id % 1 == 0) {
-        element.randomColour = 'yellow';
-      }
-    }
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
@@ -132,14 +118,13 @@ function hideEmptyCategories() {
   </select>
 </form>
 {#each categorie as categories (categories.id)}
-  <div class='card'>
-    <h2 style='color:{categories.randomColour}'>{categories.text}</h2>
-    <ul>
+  <div class="card">
+    <h2 on:click={(event) => categoryHide(event)}>{categories.text} > </h2>
+    <ul class="collapsed">
       {#each todos as todo (todo.id)}
         {#if categories.text === todo.categorieText}
           <li
             class:completed={todo.completed}
-            style='color:{categories.randomColour}'
             on:click={async () => {
               todo.completed = !todo.completed;
               const response = await fetch(`${apiBaseUrl}/todo`, {
