@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import { onMount } from 'svelte';
   import { children } from 'svelte/internal';
   import type { User } from '../types';
@@ -55,6 +55,16 @@
     return todos
   }
 
+  function categoryHide (event) {
+    console.log(event)
+    if (!event.target.nextElementSibling.classList.contains("collapsed"))
+    {
+      event.target.nextElementSibling.classList.add("collapsed");
+    } else {
+      event.target.nextElementSibling.classList.remove("collapsed");
+    }
+  }
+
   onMount(async () => {
     window.addEventListener('message', async (event) => {
       const message = event.data; // The json data that the extension sent
@@ -105,7 +115,7 @@ function hideEmptyCategories() {
 <form
   on:submit|preventDefault={async () => {
     addToDo(text, selected.toString());
-    text = '';
+    text = "";
   }}
 >
   <input bind:value={text} class="fieldInput" placeholder="Add this todo" />
@@ -132,25 +142,24 @@ function hideEmptyCategories() {
             on:click={async () => {
               todo.completed = !todo.completed;
               const response = await fetch(`${apiBaseUrl}/todo`, {
-                method: 'PUT',
+                method: "PUT",
                 body: JSON.stringify({
                   id: todo.id,
                 }),
                 headers: {
-                  'content-type': 'application/json',
+                  "content-type": "application/json",
                   authorization: `Bearer ${accessToken}`,
                 },
               });
               getToDo()
-              .then(() => {
-              })
-              .catch(() => {
-                console.log('Getting todos failed')
-              })
+                .then(() => {})
+                .catch(() => {
+                  console.log("Getting todos failed");
+                });
               if (todo.completed) {
                 tsvscode.postMessage({
-                  type: 'onInfo',
-                  value: todo.text + ' completed! Well done 🥳',
+                  type: "onInfo",
+                  value: todo.text + " completed! Well done 🥳",
                 });
               }
               const payload = await response.json();
