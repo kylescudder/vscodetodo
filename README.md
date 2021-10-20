@@ -83,4 +83,11 @@ Removed unnecessary layers of directories
 Now uses hosted API rather than having to have locally run Express server
 Fixed issue with selected categorie now being set on load
 
+### 0.0.9
+
+Fields now use VSCode dark theme colours to make it easier to see
+Removed colours from ToDo lists (looked a bit crap)
+Categories are now collapsable (styling on this to come, functionality more important)
+Input fields have been reduced in size to fit in more.
+
 pls be nice ☺
