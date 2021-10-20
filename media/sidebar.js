@@ -76,9 +76,6 @@ var app = (function () {
     function set_input_value(input, value) {
         input.value = value == null ? '' : value;
     }
-    function set_style(node, key, value, important) {
-        node.style.setProperty(key, value, important ? 'important' : '');
-    }
     function select_option(select, value) {
         for (let i = 0; i < select.options.length; i += 1) {
             const option = select.options[i];
@@ -528,28 +525,28 @@ var app = (function () {
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[15] = list[i];
+    	child_ctx[16] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[18] = list[i];
-    	child_ctx[19] = list;
-    	child_ctx[20] = i;
+    	child_ctx[19] = list[i];
+    	child_ctx[20] = list;
+    	child_ctx[21] = i;
     	return child_ctx;
     }
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[15] = list[i];
+    	child_ctx[16] = list[i];
     	return child_ctx;
     }
 
-    // (128:4) {#each categorie as categories}
+    // (123:4) {#each categorie as categories}
     function create_each_block_2(ctx) {
     	let option;
-    	let t0_value = /*categories*/ ctx[15].text + "";
+    	let t0_value = /*categories*/ ctx[16].text + "";
     	let t0;
     	let t1;
     	let option_value_value;
@@ -559,9 +556,9 @@ var app = (function () {
     			option = element("option");
     			t0 = text(t0_value);
     			t1 = space();
-    			option.__value = option_value_value = /*categories*/ ctx[15].text;
+    			option.__value = option_value_value = /*categories*/ ctx[16].text;
     			option.value = option.__value;
-    			add_location(option, file$1, 128, 6, 4406);
+    			add_location(option, file$1, 123, 6, 4229);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -569,9 +566,9 @@ var app = (function () {
     			append_dev(option, t1);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[15].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[16].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*categorie*/ 64 && option_value_value !== (option_value_value = /*categories*/ ctx[15].text)) {
+    			if (dirty & /*categorie*/ 64 && option_value_value !== (option_value_value = /*categories*/ ctx[16].text)) {
     				prop_dev(option, "__value", option_value_value);
     				option.value = option.__value;
     			}
@@ -585,24 +582,24 @@ var app = (function () {
     		block,
     		id: create_each_block_2.name,
     		type: "each",
-    		source: "(128:4) {#each categorie as categories}",
+    		source: "(123:4) {#each categorie as categories}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (140:8) {#if categories.text === todo.categorieText}
+    // (135:8) {#if categories.text === todo.categorieText}
     function create_if_block$1(ctx) {
     	let li;
-    	let t0_value = /*todo*/ ctx[18].text + "";
+    	let t0_value = /*todo*/ ctx[19].text + "";
     	let t0;
     	let t1;
     	let mounted;
     	let dispose;
 
-    	function click_handler() {
-    		return /*click_handler*/ ctx[13](/*todo*/ ctx[18], /*each_value_1*/ ctx[19], /*todo_index*/ ctx[20]);
+    	function click_handler_1() {
+    		return /*click_handler_1*/ ctx[14](/*todo*/ ctx[19], /*each_value_1*/ ctx[20], /*todo_index*/ ctx[21]);
     	}
 
     	const block = {
@@ -610,10 +607,9 @@ var app = (function () {
     			li = element("li");
     			t0 = text(t0_value);
     			t1 = space();
-    			set_style(li, "color", /*categories*/ ctx[15].randomColour);
     			attr_dev(li, "class", "svelte-1lbowwj");
-    			toggle_class(li, "completed", /*todo*/ ctx[18].completed);
-    			add_location(li, file$1, 140, 10, 4775);
+    			toggle_class(li, "completed", /*todo*/ ctx[19].completed);
+    			add_location(li, file$1, 135, 10, 4621);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -621,20 +617,16 @@ var app = (function () {
     			append_dev(li, t1);
 
     			if (!mounted) {
-    				dispose = listen_dev(li, "click", click_handler, false, false, false);
+    				dispose = listen_dev(li, "click", click_handler_1, false, false, false);
     				mounted = true;
     			}
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*todos*/ 8 && t0_value !== (t0_value = /*todo*/ ctx[18].text + "")) set_data_dev(t0, t0_value);
-
-    			if (dirty & /*categorie*/ 64) {
-    				set_style(li, "color", /*categories*/ ctx[15].randomColour);
-    			}
+    			if (dirty & /*todos*/ 8 && t0_value !== (t0_value = /*todo*/ ctx[19].text + "")) set_data_dev(t0, t0_value);
 
     			if (dirty & /*todos*/ 8) {
-    				toggle_class(li, "completed", /*todo*/ ctx[18].completed);
+    				toggle_class(li, "completed", /*todo*/ ctx[19].completed);
     			}
     		},
     		d: function destroy(detaching) {
@@ -648,18 +640,18 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(140:8) {#if categories.text === todo.categorieText}",
+    		source: "(135:8) {#if categories.text === todo.categorieText}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (139:6) {#each todos as todo (todo.id)}
+    // (134:6) {#each todos as todo (todo.id)}
     function create_each_block_1(key_1, ctx) {
     	let first;
     	let if_block_anchor;
-    	let if_block = /*categories*/ ctx[15].text === /*todo*/ ctx[18].categorieText && create_if_block$1(ctx);
+    	let if_block = /*categories*/ ctx[16].text === /*todo*/ ctx[19].categorieText && create_if_block$1(ctx);
 
     	const block = {
     		key: key_1,
@@ -678,7 +670,7 @@ var app = (function () {
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
 
-    			if (/*categories*/ ctx[15].text === /*todo*/ ctx[18].categorieText) {
+    			if (/*categories*/ ctx[16].text === /*todo*/ ctx[19].categorieText) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
@@ -702,27 +694,30 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(139:6) {#each todos as todo (todo.id)}",
+    		source: "(134:6) {#each todos as todo (todo.id)}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (135:0) {#each categorie as categories (categories.id)}
+    // (130:0) {#each categorie as categories (categories.id)}
     function create_each_block(key_1, ctx) {
     	let div;
     	let h2;
-    	let t0_value = /*categories*/ ctx[15].text + "";
+    	let t0_value = /*categories*/ ctx[16].text + "";
     	let t0;
     	let t1;
+    	let t2;
     	let ul;
     	let each_blocks = [];
     	let each_1_lookup = new Map();
-    	let t2;
+    	let t3;
+    	let mounted;
+    	let dispose;
     	let each_value_1 = /*todos*/ ctx[3];
     	validate_each_argument(each_value_1);
-    	const get_key = ctx => /*todo*/ ctx[18].id;
+    	const get_key = ctx => /*todo*/ ctx[19].id;
     	validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
 
     	for (let i = 0; i < each_value_1.length; i += 1) {
@@ -738,43 +733,46 @@ var app = (function () {
     			div = element("div");
     			h2 = element("h2");
     			t0 = text(t0_value);
-    			t1 = space();
+    			t1 = text(" >");
+    			t2 = space();
     			ul = element("ul");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			t2 = space();
-    			set_style(h2, "color", /*categories*/ ctx[15].randomColour);
-    			add_location(h2, file$1, 136, 4, 4594);
-    			add_location(ul, file$1, 137, 4, 4666);
+    			t3 = space();
+    			add_location(h2, file$1, 131, 4, 4417);
+    			attr_dev(ul, "class", "collapsed");
+    			add_location(ul, file$1, 132, 4, 4494);
     			attr_dev(div, "class", "card");
-    			add_location(div, file$1, 135, 2, 4570);
+    			add_location(div, file$1, 130, 2, 4393);
     			this.first = div;
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, h2);
     			append_dev(h2, t0);
-    			append_dev(div, t1);
+    			append_dev(h2, t1);
+    			append_dev(div, t2);
     			append_dev(div, ul);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(ul, null);
     			}
 
-    			append_dev(div, t2);
+    			append_dev(div, t3);
+
+    			if (!mounted) {
+    				dispose = listen_dev(h2, "click", /*click_handler*/ ctx[13], false, false, false);
+    				mounted = true;
+    			}
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[15].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[16].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*categorie*/ 64) {
-    				set_style(h2, "color", /*categories*/ ctx[15].randomColour);
-    			}
-
-    			if (dirty & /*categorie, todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode*/ 330) {
+    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie*/ 330) {
     				each_value_1 = /*todos*/ ctx[3];
     				validate_each_argument(each_value_1);
     				validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
@@ -787,6 +785,9 @@ var app = (function () {
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].d();
     			}
+
+    			mounted = false;
+    			dispose();
     		}
     	};
 
@@ -794,7 +795,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(135:0) {#each categorie as categories (categories.id)}",
+    		source: "(130:0) {#each categorie as categories (categories.id)}",
     		ctx
     	});
 
@@ -827,7 +828,7 @@ var app = (function () {
 
     	let each_value = /*categorie*/ ctx[6];
     	validate_each_argument(each_value);
-    	const get_key = ctx => /*categories*/ ctx[15].id;
+    	const get_key = ctx => /*categories*/ ctx[16].id;
     	validate_each_keys(ctx, each_value, get_each_context, get_key);
 
     	for (let i = 0; i < each_value.length; i += 1) {
@@ -858,11 +859,14 @@ var app = (function () {
     			}
 
     			each1_anchor = empty();
-    			add_location(div, file$1, 118, 0, 4122);
-    			add_location(input, file$1, 125, 2, 4270);
+    			add_location(div, file$1, 109, 0, 3843);
+    			attr_dev(input, "class", "fieldInput");
+    			attr_dev(input, "placeholder", "Add this todo");
+    			add_location(input, file$1, 116, 2, 3991);
+    			attr_dev(select, "class", "fieldInput categoryDropdown");
     			if (/*selected*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[10].call(select));
-    			add_location(select, file$1, 126, 2, 4301);
-    			add_location(form, file$1, 119, 0, 4152);
+    			add_location(select, file$1, 117, 2, 4069);
+    			add_location(form, file$1, 110, 0, 3873);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -937,7 +941,7 @@ var app = (function () {
     				select_option(select, /*selected*/ ctx[4]);
     			}
 
-    			if (dirty & /*todos, categorie, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode*/ 330) {
+    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie, categoryHide*/ 330) {
     				each_value = /*categorie*/ ctx[6];
     				validate_each_argument(each_value);
     				validate_each_keys(ctx, each_value, get_each_context, get_key);
@@ -972,6 +976,16 @@ var app = (function () {
     	});
 
     	return block;
+    }
+
+    function categoryHide(event) {
+    	console.log(event);
+
+    	if (!event.target.nextElementSibling.classList.contains("collapsed")) {
+    		event.target.nextElementSibling.classList.add("collapsed");
+    	} else {
+    		event.target.nextElementSibling.classList.remove("collapsed");
+    	}
     }
 
     function hideEmptyCategories() {
@@ -1103,22 +1117,6 @@ var app = (function () {
     		$$invalidate(6, categorie = categoriePayload.payload);
     		$$invalidate(4, selected = categorie[0].text);
 
-    		for (let i = 0; i < categorie.length; i++) {
-    			const element = categorie[i];
-
-    			if (element.id % 5 == 0) {
-    				element.randomColour = "lightblue";
-    			} else if (element.id % 4 == 0) {
-    				element.randomColour = "pink";
-    			} else if (element.id % 3 == 0) {
-    				element.randomColour = "lightgreen";
-    			} else if (element.id % 2 == 0) {
-    				element.randomColour = "red";
-    			} else if (element.id % 1 == 0) {
-    				element.randomColour = "yellow";
-    			}
-    		}
-
     		setTimeout(
     			function () {
     				hideEmptyCategories();
@@ -1151,7 +1149,9 @@ var app = (function () {
     		$$invalidate(2, text = "");
     	};
 
-    	const click_handler = async (todo, each_value_1, todo_index) => {
+    	const click_handler = event => categoryHide(event);
+
+    	const click_handler_1 = async (todo, each_value_1, todo_index) => {
     		$$invalidate(3, each_value_1[todo_index].completed = !todo.completed, todos);
 
     		const response = await fetch(`${apiBaseUrl$1}/todo`, {
@@ -1199,6 +1199,7 @@ var app = (function () {
     		categorie,
     		addToDo,
     		getToDo,
+    		categoryHide,
     		hideEmptyCategories
     	});
 
@@ -1231,7 +1232,8 @@ var app = (function () {
     		select_change_handler,
     		blur_handler,
     		submit_handler,
-    		click_handler
+    		click_handler,
+    		click_handler_1
     	];
     }
 

@@ -108,8 +108,12 @@ function hideEmptyCategories() {
     text = '';
   }}
 >
-  <input bind:value={text} />
-  <select bind:value={selected} on:blur={() => (answer = '')}>
+  <input bind:value={text} class="fieldInput" placeholder="Add this todo" />
+  <select
+    bind:value={selected}
+    on:blur={() => (answer = "")}
+    class="fieldInput categoryDropdown"
+  >
     {#each categorie as categories}
       <option value={categories.text}>
         {categories.text}
