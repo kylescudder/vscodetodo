@@ -543,7 +543,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (123:4) {#each categorie as categories}
+    // (122:4) {#each categorie as categories}
     function create_each_block_2(ctx) {
     	let option;
     	let t0_value = /*categories*/ ctx[16].text + "";
@@ -558,7 +558,7 @@ var app = (function () {
     			t1 = space();
     			option.__value = option_value_value = /*categories*/ ctx[16].text;
     			option.value = option.__value;
-    			add_location(option, file$1, 123, 6, 4229);
+    			add_location(option, file$1, 122, 6, 4327);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -582,14 +582,14 @@ var app = (function () {
     		block,
     		id: create_each_block_2.name,
     		type: "each",
-    		source: "(123:4) {#each categorie as categories}",
+    		source: "(122:4) {#each categorie as categories}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (135:8) {#if categories.text === todo.categorieText}
+    // (136:8) {#if categories.text === todo.categorieText}
     function create_if_block$1(ctx) {
     	let li;
     	let t0_value = /*todo*/ ctx[19].text + "";
@@ -609,7 +609,7 @@ var app = (function () {
     			t1 = space();
     			attr_dev(li, "class", "svelte-1lbowwj");
     			toggle_class(li, "completed", /*todo*/ ctx[19].completed);
-    			add_location(li, file$1, 135, 10, 4621);
+    			add_location(li, file$1, 136, 10, 4760);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -640,14 +640,14 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(135:8) {#if categories.text === todo.categorieText}",
+    		source: "(136:8) {#if categories.text === todo.categorieText}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (134:6) {#each todos as todo (todo.id)}
+    // (135:6) {#each todos as todo (todo.id)}
     function create_each_block_1(key_1, ctx) {
     	let first;
     	let if_block_anchor;
@@ -694,20 +694,20 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(134:6) {#each todos as todo (todo.id)}",
+    		source: "(135:6) {#each todos as todo (todo.id)}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (130:0) {#each categorie as categories (categories.id)}
+    // (129:0) {#each categorie as categories (categories.id)}
     function create_each_block(key_1, ctx) {
     	let div;
     	let h2;
     	let t0_value = /*categories*/ ctx[16].text + "";
     	let t0;
-    	let t1;
+    	let span;
     	let t2;
     	let ul;
     	let each_blocks = [];
@@ -733,7 +733,8 @@ var app = (function () {
     			div = element("div");
     			h2 = element("h2");
     			t0 = text(t0_value);
-    			t1 = text(" >");
+    			span = element("span");
+    			span.textContent = ">";
     			t2 = space();
     			ul = element("ul");
 
@@ -742,18 +743,20 @@ var app = (function () {
     			}
 
     			t3 = space();
-    			add_location(h2, file$1, 131, 4, 4417);
+    			attr_dev(span, "id", "colIcon");
+    			add_location(span, file$1, 131, 23, 4586);
+    			add_location(h2, file$1, 130, 4, 4515);
     			attr_dev(ul, "class", "collapsed");
-    			add_location(ul, file$1, 132, 4, 4494);
+    			add_location(ul, file$1, 133, 4, 4633);
     			attr_dev(div, "class", "card");
-    			add_location(div, file$1, 130, 2, 4393);
+    			add_location(div, file$1, 129, 2, 4491);
     			this.first = div;
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, h2);
     			append_dev(h2, t0);
-    			append_dev(h2, t1);
+    			append_dev(h2, span);
     			append_dev(div, t2);
     			append_dev(div, ul);
 
@@ -795,7 +798,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(130:0) {#each categorie as categories (categories.id)}",
+    		source: "(129:0) {#each categorie as categories (categories.id)}",
     		ctx
     	});
 
@@ -859,14 +862,14 @@ var app = (function () {
     			}
 
     			each1_anchor = empty();
-    			add_location(div, file$1, 109, 0, 3843);
+    			add_location(div, file$1, 108, 0, 3941);
     			attr_dev(input, "class", "fieldInput");
     			attr_dev(input, "placeholder", "Add this todo");
-    			add_location(input, file$1, 116, 2, 3991);
+    			add_location(input, file$1, 115, 2, 4089);
     			attr_dev(select, "class", "fieldInput categoryDropdown");
     			if (/*selected*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[10].call(select));
-    			add_location(select, file$1, 117, 2, 4069);
-    			add_location(form, file$1, 110, 0, 3873);
+    			add_location(select, file$1, 116, 2, 4167);
+    			add_location(form, file$1, 109, 0, 3971);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -979,12 +982,12 @@ var app = (function () {
     }
 
     function categoryHide(event) {
-    	console.log(event);
-
     	if (!event.target.nextElementSibling.classList.contains("collapsed")) {
     		event.target.nextElementSibling.classList.add("collapsed");
+    		event.target.firstElementChild.classList.remove("expanded");
     	} else {
     		event.target.nextElementSibling.classList.remove("collapsed");
+    		event.target.firstElementChild.classList.add("expanded");
     	}
     }
 

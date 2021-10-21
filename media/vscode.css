@@ -109,3 +109,11 @@ li {
 .collapsed {
 	display: none !important;
 }
+#colIcon {
+	margin-left:5px;
+}
+.expanded {
+	position: absolute;
+	margin-top:3px;
+	transform: rotate(90deg);
+}

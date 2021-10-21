@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { children } from 'svelte/internal';
-  import type { User } from '../types';
-  import { apiBaseUrl } from '../../src/constants';
+  import { onMount } from "svelte";
+  import { children } from "svelte/internal";
+  import type { User } from "../types";
+  import { apiBaseUrl } from "../../src/constants";
 
   export let user: User;
   export let accessToken: string;
-  let text = '';
+  let text = "";
   let todos: Array<{
     text: String;
     completed: boolean;
@@ -14,7 +14,7 @@
     categorieText: string;
   }> = [];
   let selected: number;
-  let answer = '';
+  let answer = "";
   let categorie: Array<{
     id: number;
     text: string;
@@ -23,22 +23,21 @@
 
   async function addToDo(t: string, categorieText: string) {
     const response = await fetch(`${apiBaseUrl}/todo`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         text: t,
         categorieText: categorieText,
       }),
       headers: {
-        'content-type': 'application/json',
+        "content-type": "application/json",
         authorization: `Bearer ${accessToken}`,
       },
     });
     getToDo()
-    .then(() => {
-    })
-    .catch(() => {
-      console.log('Getting todos failed')
-    })
+      .then(() => {})
+      .catch(() => {
+        console.log("Getting todos failed");
+      });
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
@@ -52,34 +51,33 @@
     });
     const payload = await response.json();
     todos = payload.data;
-    return todos
+    return todos;
   }
 
-  function categoryHide (event) {
-    console.log(event)
-    if (!event.target.nextElementSibling.classList.contains("collapsed"))
-    {
+  function categoryHide(event) {
+    if (!event.target.nextElementSibling.classList.contains("collapsed")) {
       event.target.nextElementSibling.classList.add("collapsed");
+      event.target.firstElementChild.classList.remove("expanded");
     } else {
       event.target.nextElementSibling.classList.remove("collapsed");
+      event.target.firstElementChild.classList.add("expanded");
     }
   }
 
   onMount(async () => {
-    window.addEventListener('message', async (event) => {
+    window.addEventListener("message", async (event) => {
       const message = event.data; // The json data that the extension sent
       switch (message.type) {
-        case 'new-todo':
+        case "new-todo":
           addToDo(message.value, selected.toString());
           break;
       }
     });
     getToDo()
-    .then(() => {
-    })
-    .catch(() => {
-      console.log('Getting todos failed')
-    })
+      .then(() => {})
+      .catch(() => {
+        console.log("Getting todos failed");
+      });
 
     const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
       headers: {
@@ -88,27 +86,26 @@
     });
     const categoriePayload = await categorieResponse.json();
     categorie = categoriePayload.payload;
-    selected = categorie[0].text
+    selected = categorie[0].text;
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
   });
 
-
-function hideEmptyCategories() {
-  var arr=Array.from(document.getElementsByClassName('card'));
-  for(let i=0;i<arr.length;i++) {
-    const element=arr[i];
-    const lists=element.children[1];
-    if(lists.childElementCount==0) {
-      element.removeAttribute('style');
-      element.setAttribute('style','display: none;');
-    } else {
-      element.removeAttribute('style');
-      element.setAttribute('style','display: block;');
+  function hideEmptyCategories() {
+    var arr = Array.from(document.getElementsByClassName("card"));
+    for (let i = 0; i < arr.length; i++) {
+      const element = arr[i];
+      const lists = element.children[1];
+      if (lists.childElementCount == 0) {
+        element.removeAttribute("style");
+        element.setAttribute("style", "display: none;");
+      } else {
+        element.removeAttribute("style");
+        element.setAttribute("style", "display: block;");
+      }
     }
   }
-}
 </script>
 
 <div>Hello {user.name}</div>
@@ -133,7 +130,9 @@ function hideEmptyCategories() {
 </form>
 {#each categorie as categories (categories.id)}
   <div class="card">
-    <h2 on:click={(event) => categoryHide(event)}>{categories.text} > </h2>
+    <h2 on:click={(event) => categoryHide(event)}>
+      {categories.text}<span id="colIcon">&gt;</span>
+    </h2>
     <ul class="collapsed">
       {#each todos as todo (todo.id)}
         {#if categories.text === todo.categorieText}
