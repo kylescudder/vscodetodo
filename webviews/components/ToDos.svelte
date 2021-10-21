@@ -6,7 +6,8 @@
 
   export let user: User;
   export let accessToken: string;
-  let text = "";
+  let text = '';
+  let categoryText = '';
   let todos: Array<{
     text: String;
     completed: boolean;
@@ -38,6 +39,27 @@
       .catch(() => {
         console.log("Getting todos failed");
       });
+    setTimeout(function () {
+      hideEmptyCategories();
+    }, 100);
+  }
+  async function addCategory(t: string) {
+    const response = await fetch(`${apiBaseUrl}/category`, {
+      method: 'POST',
+      body: JSON.stringify({
+        categorieText: t,
+      }),
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${accessToken}`,
+      },
+    });
+    categoryPopulate()    
+    .then(() => {
+    })
+    .catch(() => {
+      console.log('Getting todos failed')
+    })
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
@@ -78,7 +100,9 @@
       .catch(() => {
         console.log("Getting todos failed");
       });
-
+    categoryPopulate()
+  });
+  async function categoryPopulate() {
     const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
@@ -90,8 +114,7 @@
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
-  });
-
+  }
   function hideEmptyCategories() {
     var arr = Array.from(document.getElementsByClassName("card"));
     for (let i = 0; i < arr.length; i++) {
@@ -127,6 +150,18 @@
       </option>
     {/each}
   </select>
+</form>
+<form
+  on:submit|preventDefault={async () => {
+    addCategory(categoryText);
+    categoryText = "";
+  }}
+>
+  <input
+    bind:value={categoryText}
+    class="fieldInput categoryDropdown"
+    placeholder="Add category"
+  />
 </form>
 {#each categorie as categories (categories.id)}
   <div class="card">

@@ -525,28 +525,28 @@ var app = (function () {
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[16] = list[i];
+    	child_ctx[21] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[19] = list[i];
-    	child_ctx[20] = list;
-    	child_ctx[21] = i;
+    	child_ctx[24] = list[i];
+    	child_ctx[25] = list;
+    	child_ctx[26] = i;
     	return child_ctx;
     }
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[16] = list[i];
+    	child_ctx[21] = list[i];
     	return child_ctx;
     }
 
-    // (122:4) {#each categorie as categories}
+    // (151:4) {#each categorie as categories}
     function create_each_block_2(ctx) {
     	let option;
-    	let t0_value = /*categories*/ ctx[16].text + "";
+    	let t0_value = /*categories*/ ctx[21].text + "";
     	let t0;
     	let t1;
     	let option_value_value;
@@ -556,9 +556,9 @@ var app = (function () {
     			option = element("option");
     			t0 = text(t0_value);
     			t1 = space();
-    			option.__value = option_value_value = /*categories*/ ctx[16].text;
+    			option.__value = option_value_value = /*categories*/ ctx[21].text;
     			option.value = option.__value;
-    			add_location(option, file$1, 122, 6, 4327);
+    			add_location(option, file$1, 151, 6, 5212);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -566,9 +566,9 @@ var app = (function () {
     			append_dev(option, t1);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[16].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*categorie*/ 128 && t0_value !== (t0_value = /*categories*/ ctx[21].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*categorie*/ 64 && option_value_value !== (option_value_value = /*categories*/ ctx[16].text)) {
+    			if (dirty & /*categorie*/ 128 && option_value_value !== (option_value_value = /*categories*/ ctx[21].text)) {
     				prop_dev(option, "__value", option_value_value);
     				option.value = option.__value;
     			}
@@ -582,24 +582,24 @@ var app = (function () {
     		block,
     		id: create_each_block_2.name,
     		type: "each",
-    		source: "(122:4) {#each categorie as categories}",
+    		source: "(151:4) {#each categorie as categories}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (136:8) {#if categories.text === todo.categorieText}
+    // (177:8) {#if categories.text === todo.categorieText}
     function create_if_block$1(ctx) {
     	let li;
-    	let t0_value = /*todo*/ ctx[19].text + "";
+    	let t0_value = /*todo*/ ctx[24].text + "";
     	let t0;
     	let t1;
     	let mounted;
     	let dispose;
 
     	function click_handler_1() {
-    		return /*click_handler_1*/ ctx[14](/*todo*/ ctx[19], /*each_value_1*/ ctx[20], /*todo_index*/ ctx[21]);
+    		return /*click_handler_1*/ ctx[18](/*todo*/ ctx[24], /*each_value_1*/ ctx[25], /*todo_index*/ ctx[26]);
     	}
 
     	const block = {
@@ -608,8 +608,8 @@ var app = (function () {
     			t0 = text(t0_value);
     			t1 = space();
     			attr_dev(li, "class", "svelte-1lbowwj");
-    			toggle_class(li, "completed", /*todo*/ ctx[19].completed);
-    			add_location(li, file$1, 136, 10, 4760);
+    			toggle_class(li, "completed", /*todo*/ ctx[24].completed);
+    			add_location(li, file$1, 177, 10, 5889);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -623,10 +623,10 @@ var app = (function () {
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*todos*/ 8 && t0_value !== (t0_value = /*todo*/ ctx[19].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*todos*/ 16 && t0_value !== (t0_value = /*todo*/ ctx[24].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*todos*/ 8) {
-    				toggle_class(li, "completed", /*todo*/ ctx[19].completed);
+    			if (dirty & /*todos*/ 16) {
+    				toggle_class(li, "completed", /*todo*/ ctx[24].completed);
     			}
     		},
     		d: function destroy(detaching) {
@@ -640,18 +640,18 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(136:8) {#if categories.text === todo.categorieText}",
+    		source: "(177:8) {#if categories.text === todo.categorieText}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (135:6) {#each todos as todo (todo.id)}
+    // (176:6) {#each todos as todo (todo.id)}
     function create_each_block_1(key_1, ctx) {
     	let first;
     	let if_block_anchor;
-    	let if_block = /*categories*/ ctx[16].text === /*todo*/ ctx[19].categorieText && create_if_block$1(ctx);
+    	let if_block = /*categories*/ ctx[21].text === /*todo*/ ctx[24].categorieText && create_if_block$1(ctx);
 
     	const block = {
     		key: key_1,
@@ -670,7 +670,7 @@ var app = (function () {
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
 
-    			if (/*categories*/ ctx[16].text === /*todo*/ ctx[19].categorieText) {
+    			if (/*categories*/ ctx[21].text === /*todo*/ ctx[24].categorieText) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
@@ -694,18 +694,18 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(135:6) {#each todos as todo (todo.id)}",
+    		source: "(176:6) {#each todos as todo (todo.id)}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (129:0) {#each categorie as categories (categories.id)}
+    // (170:0) {#each categorie as categories (categories.id)}
     function create_each_block(key_1, ctx) {
     	let div;
     	let h2;
-    	let t0_value = /*categories*/ ctx[16].text + "";
+    	let t0_value = /*categories*/ ctx[21].text + "";
     	let t0;
     	let span;
     	let t2;
@@ -715,9 +715,9 @@ var app = (function () {
     	let t3;
     	let mounted;
     	let dispose;
-    	let each_value_1 = /*todos*/ ctx[3];
+    	let each_value_1 = /*todos*/ ctx[4];
     	validate_each_argument(each_value_1);
-    	const get_key = ctx => /*todo*/ ctx[19].id;
+    	const get_key = ctx => /*todo*/ ctx[24].id;
     	validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
 
     	for (let i = 0; i < each_value_1.length; i += 1) {
@@ -744,12 +744,12 @@ var app = (function () {
 
     			t3 = space();
     			attr_dev(span, "id", "colIcon");
-    			add_location(span, file$1, 131, 23, 4586);
-    			add_location(h2, file$1, 130, 4, 4515);
+    			add_location(span, file$1, 172, 23, 5715);
+    			add_location(h2, file$1, 171, 4, 5644);
     			attr_dev(ul, "class", "collapsed");
-    			add_location(ul, file$1, 133, 4, 4633);
+    			add_location(ul, file$1, 174, 4, 5762);
     			attr_dev(div, "class", "card");
-    			add_location(div, file$1, 129, 2, 4491);
+    			add_location(div, file$1, 170, 2, 5620);
     			this.first = div;
     		},
     		m: function mount(target, anchor) {
@@ -767,16 +767,16 @@ var app = (function () {
     			append_dev(div, t3);
 
     			if (!mounted) {
-    				dispose = listen_dev(h2, "click", /*click_handler*/ ctx[13], false, false, false);
+    				dispose = listen_dev(h2, "click", /*click_handler*/ ctx[17], false, false, false);
     				mounted = true;
     			}
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*categorie*/ 64 && t0_value !== (t0_value = /*categories*/ ctx[16].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*categorie*/ 128 && t0_value !== (t0_value = /*categories*/ ctx[21].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie*/ 330) {
-    				each_value_1 = /*todos*/ ctx[3];
+    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie*/ 1170) {
+    				each_value_1 = /*todos*/ ctx[4];
     				validate_each_argument(each_value_1);
     				validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
     				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value_1, each_1_lookup, ul, destroy_block, create_each_block_1, null, get_each_context_1);
@@ -798,7 +798,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(129:0) {#each categorie as categories (categories.id)}",
+    		source: "(170:0) {#each categorie as categories (categories.id)}",
     		ctx
     	});
 
@@ -811,17 +811,20 @@ var app = (function () {
     	let t1_value = /*user*/ ctx[0].name + "";
     	let t1;
     	let t2;
-    	let form;
-    	let input;
+    	let form0;
+    	let input0;
     	let t3;
     	let select;
     	let t4;
+    	let form1;
+    	let input1;
+    	let t5;
     	let each_blocks = [];
     	let each1_lookup = new Map();
     	let each1_anchor;
     	let mounted;
     	let dispose;
-    	let each_value_2 = /*categorie*/ ctx[6];
+    	let each_value_2 = /*categorie*/ ctx[7];
     	validate_each_argument(each_value_2);
     	let each_blocks_1 = [];
 
@@ -829,9 +832,9 @@ var app = (function () {
     		each_blocks_1[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
     	}
 
-    	let each_value = /*categorie*/ ctx[6];
+    	let each_value = /*categorie*/ ctx[7];
     	validate_each_argument(each_value);
-    	const get_key = ctx => /*categories*/ ctx[16].id;
+    	const get_key = ctx => /*categories*/ ctx[21].id;
     	validate_each_keys(ctx, each_value, get_each_context, get_key);
 
     	for (let i = 0; i < each_value.length; i += 1) {
@@ -846,8 +849,8 @@ var app = (function () {
     			t0 = text("Hello ");
     			t1 = text(t1_value);
     			t2 = space();
-    			form = element("form");
-    			input = element("input");
+    			form0 = element("form");
+    			input0 = element("input");
     			t3 = space();
     			select = element("select");
 
@@ -856,20 +859,27 @@ var app = (function () {
     			}
 
     			t4 = space();
+    			form1 = element("form");
+    			input1 = element("input");
+    			t5 = space();
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
     			each1_anchor = empty();
-    			add_location(div, file$1, 108, 0, 3941);
-    			attr_dev(input, "class", "fieldInput");
-    			attr_dev(input, "placeholder", "Add this todo");
-    			add_location(input, file$1, 115, 2, 4089);
+    			add_location(div, file$1, 137, 0, 4826);
+    			attr_dev(input0, "class", "fieldInput");
+    			attr_dev(input0, "placeholder", "Add this todo");
+    			add_location(input0, file$1, 144, 2, 4974);
     			attr_dev(select, "class", "fieldInput categoryDropdown");
-    			if (/*selected*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[10].call(select));
-    			add_location(select, file$1, 116, 2, 4167);
-    			add_location(form, file$1, 109, 0, 3971);
+    			if (/*selected*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[12].call(select));
+    			add_location(select, file$1, 145, 2, 5052);
+    			add_location(form0, file$1, 138, 0, 4856);
+    			attr_dev(input1, "class", "fieldInput categoryDropdown");
+    			attr_dev(input1, "placeholder", "Add category");
+    			add_location(input1, file$1, 163, 2, 5442);
+    			add_location(form1, file$1, 157, 0, 5325);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -879,18 +889,22 @@ var app = (function () {
     			append_dev(div, t0);
     			append_dev(div, t1);
     			insert_dev(target, t2, anchor);
-    			insert_dev(target, form, anchor);
-    			append_dev(form, input);
-    			set_input_value(input, /*text*/ ctx[2]);
-    			append_dev(form, t3);
-    			append_dev(form, select);
+    			insert_dev(target, form0, anchor);
+    			append_dev(form0, input0);
+    			set_input_value(input0, /*text*/ ctx[2]);
+    			append_dev(form0, t3);
+    			append_dev(form0, select);
 
     			for (let i = 0; i < each_blocks_1.length; i += 1) {
     				each_blocks_1[i].m(select, null);
     			}
 
-    			select_option(select, /*selected*/ ctx[4]);
+    			select_option(select, /*selected*/ ctx[5]);
     			insert_dev(target, t4, anchor);
+    			insert_dev(target, form1, anchor);
+    			append_dev(form1, input1);
+    			set_input_value(input1, /*categoryText*/ ctx[3]);
+    			insert_dev(target, t5, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(target, anchor);
@@ -900,10 +914,12 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input, "input", /*input_input_handler*/ ctx[9]),
-    					listen_dev(select, "change", /*select_change_handler*/ ctx[10]),
-    					listen_dev(select, "blur", /*blur_handler*/ ctx[11], false, false, false),
-    					listen_dev(form, "submit", prevent_default(/*submit_handler*/ ctx[12]), false, true, false)
+    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[11]),
+    					listen_dev(select, "change", /*select_change_handler*/ ctx[12]),
+    					listen_dev(select, "blur", /*blur_handler*/ ctx[13], false, false, false),
+    					listen_dev(form0, "submit", prevent_default(/*submit_handler*/ ctx[14]), false, true, false),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[15]),
+    					listen_dev(form1, "submit", prevent_default(/*submit_handler_1*/ ctx[16]), false, true, false)
     				];
 
     				mounted = true;
@@ -912,12 +928,12 @@ var app = (function () {
     		p: function update(ctx, [dirty]) {
     			if (dirty & /*user*/ 1 && t1_value !== (t1_value = /*user*/ ctx[0].name + "")) set_data_dev(t1, t1_value);
 
-    			if (dirty & /*text*/ 4 && input.value !== /*text*/ ctx[2]) {
-    				set_input_value(input, /*text*/ ctx[2]);
+    			if (dirty & /*text*/ 4 && input0.value !== /*text*/ ctx[2]) {
+    				set_input_value(input0, /*text*/ ctx[2]);
     			}
 
-    			if (dirty & /*categorie*/ 64) {
-    				each_value_2 = /*categorie*/ ctx[6];
+    			if (dirty & /*categorie*/ 128) {
+    				each_value_2 = /*categorie*/ ctx[7];
     				validate_each_argument(each_value_2);
     				let i;
 
@@ -940,12 +956,16 @@ var app = (function () {
     				each_blocks_1.length = each_value_2.length;
     			}
 
-    			if (dirty & /*selected, categorie*/ 80) {
-    				select_option(select, /*selected*/ ctx[4]);
+    			if (dirty & /*selected, categorie*/ 160) {
+    				select_option(select, /*selected*/ ctx[5]);
     			}
 
-    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie, categoryHide*/ 330) {
-    				each_value = /*categorie*/ ctx[6];
+    			if (dirty & /*categoryText*/ 8 && input1.value !== /*categoryText*/ ctx[3]) {
+    				set_input_value(input1, /*categoryText*/ ctx[3]);
+    			}
+
+    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie, categoryHide*/ 1170) {
+    				each_value = /*categorie*/ ctx[7];
     				validate_each_argument(each_value);
     				validate_each_keys(ctx, each_value, get_each_context, get_key);
     				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each1_lookup, each1_anchor.parentNode, destroy_block, create_each_block, each1_anchor, get_each_context);
@@ -956,9 +976,11 @@ var app = (function () {
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
     			if (detaching) detach_dev(t2);
-    			if (detaching) detach_dev(form);
+    			if (detaching) detach_dev(form0);
     			destroy_each(each_blocks_1, detaching);
     			if (detaching) detach_dev(t4);
+    			if (detaching) detach_dev(form1);
+    			if (detaching) detach_dev(t5);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].d(detaching);
@@ -1052,6 +1074,7 @@ var app = (function () {
     	let { user } = $$props;
     	let { accessToken } = $$props;
     	let text = "";
+    	let categoryText = "";
     	let todos = [];
     	let selected;
     	let answer = "";
@@ -1083,6 +1106,32 @@ var app = (function () {
     		});
     	}
 
+    	function addCategory(t) {
+    		return __awaiter(this, void 0, void 0, function* () {
+    			yield fetch(`${apiBaseUrl$1}/category`, {
+    				method: "POST",
+    				body: JSON.stringify({ categorieText: t }),
+    				headers: {
+    					"content-type": "application/json",
+    					authorization: `Bearer ${accessToken}`
+    				}
+    			});
+
+    			categoryPopulate().then(() => {
+    				
+    			}).catch(() => {
+    				console.log("Getting todos failed");
+    			});
+
+    			setTimeout(
+    				function () {
+    					hideEmptyCategories();
+    				},
+    				100
+    			);
+    		});
+    	}
+
     	function getToDo() {
     		return __awaiter(this, void 0, void 0, function* () {
     			const response = yield fetch(`${apiBaseUrl$1}/todo`, {
@@ -1090,7 +1139,7 @@ var app = (function () {
     			});
 
     			const payload = yield response.json();
-    			$$invalidate(3, todos = payload.data);
+    			$$invalidate(4, todos = payload.data);
     			return todos;
     		});
     	}
@@ -1112,21 +1161,27 @@ var app = (function () {
     			console.log("Getting todos failed");
     		});
 
-    		const categorieResponse = yield fetch(`${apiBaseUrl$1}/categories`, {
-    			headers: { authorization: `Bearer ${accessToken}` }
-    		});
-
-    		const categoriePayload = yield categorieResponse.json();
-    		$$invalidate(6, categorie = categoriePayload.payload);
-    		$$invalidate(4, selected = categorie[0].text);
-
-    		setTimeout(
-    			function () {
-    				hideEmptyCategories();
-    			},
-    			100
-    		);
+    		categoryPopulate();
     	}));
+
+    	function categoryPopulate() {
+    		return __awaiter(this, void 0, void 0, function* () {
+    			const categorieResponse = yield fetch(`${apiBaseUrl$1}/categories`, {
+    				headers: { authorization: `Bearer ${accessToken}` }
+    			});
+
+    			const categoriePayload = yield categorieResponse.json();
+    			$$invalidate(7, categorie = categoriePayload.payload);
+    			$$invalidate(5, selected = categorie[0].text);
+
+    			setTimeout(
+    				function () {
+    					hideEmptyCategories();
+    				},
+    				100
+    			);
+    		});
+    	}
 
     	const writable_props = ["user", "accessToken"];
 
@@ -1134,28 +1189,38 @@ var app = (function () {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<ToDos> was created with unknown prop '${key}'`);
     	});
 
-    	function input_input_handler() {
+    	function input0_input_handler() {
     		text = this.value;
     		$$invalidate(2, text);
     	}
 
     	function select_change_handler() {
     		selected = select_value(this);
-    		$$invalidate(4, selected);
-    		$$invalidate(6, categorie);
+    		$$invalidate(5, selected);
+    		$$invalidate(7, categorie);
     	}
 
-    	const blur_handler = () => $$invalidate(5, answer = "");
+    	const blur_handler = () => $$invalidate(6, answer = "");
 
     	const submit_handler = async () => {
     		addToDo(text, selected.toString());
     		$$invalidate(2, text = "");
     	};
 
+    	function input1_input_handler() {
+    		categoryText = this.value;
+    		$$invalidate(3, categoryText);
+    	}
+
+    	const submit_handler_1 = async () => {
+    		addCategory(categoryText);
+    		$$invalidate(3, categoryText = "");
+    	};
+
     	const click_handler = event => categoryHide(event);
 
     	const click_handler_1 = async (todo, each_value_1, todo_index) => {
-    		$$invalidate(3, each_value_1[todo_index].completed = !todo.completed, todos);
+    		$$invalidate(4, each_value_1[todo_index].completed = !todo.completed, todos);
 
     		const response = await fetch(`${apiBaseUrl$1}/todo`, {
     			method: "PUT",
@@ -1180,7 +1245,7 @@ var app = (function () {
     		}
 
     		const payload = await response.json();
-    		$$invalidate(3, todos = payload.todos);
+    		$$invalidate(4, todos = payload.todos);
     	};
 
     	$$self.$$set = $$props => {
@@ -1196,13 +1261,16 @@ var app = (function () {
     		user,
     		accessToken,
     		text,
+    		categoryText,
     		todos,
     		selected,
     		answer,
     		categorie,
     		addToDo,
+    		addCategory,
     		getToDo,
     		categoryHide,
+    		categoryPopulate,
     		hideEmptyCategories
     	});
 
@@ -1211,10 +1279,11 @@ var app = (function () {
     		if ("user" in $$props) $$invalidate(0, user = $$props.user);
     		if ("accessToken" in $$props) $$invalidate(1, accessToken = $$props.accessToken);
     		if ("text" in $$props) $$invalidate(2, text = $$props.text);
-    		if ("todos" in $$props) $$invalidate(3, todos = $$props.todos);
-    		if ("selected" in $$props) $$invalidate(4, selected = $$props.selected);
-    		if ("answer" in $$props) $$invalidate(5, answer = $$props.answer);
-    		if ("categorie" in $$props) $$invalidate(6, categorie = $$props.categorie);
+    		if ("categoryText" in $$props) $$invalidate(3, categoryText = $$props.categoryText);
+    		if ("todos" in $$props) $$invalidate(4, todos = $$props.todos);
+    		if ("selected" in $$props) $$invalidate(5, selected = $$props.selected);
+    		if ("answer" in $$props) $$invalidate(6, answer = $$props.answer);
+    		if ("categorie" in $$props) $$invalidate(7, categorie = $$props.categorie);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -1225,16 +1294,20 @@ var app = (function () {
     		user,
     		accessToken,
     		text,
+    		categoryText,
     		todos,
     		selected,
     		answer,
     		categorie,
     		addToDo,
+    		addCategory,
     		getToDo,
-    		input_input_handler,
+    		input0_input_handler,
     		select_change_handler,
     		blur_handler,
     		submit_handler,
+    		input1_input_handler,
+    		submit_handler_1,
     		click_handler,
     		click_handler_1
     	];
