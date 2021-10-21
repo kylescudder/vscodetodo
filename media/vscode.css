@@ -80,7 +80,7 @@ select {
 	border: none;
 	font-family: var(--vscode-font-family);
 	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
-	color: var(--vscode-input-foreground);
+	color: var(--vscode-input-border);
 	outline-color: var(--vscode-input-border);
 	background-color: var(--vscode-input-background);
 }
@@ -101,15 +101,8 @@ li {
 	cursor: pointer;
 }
 .fieldInput {
-    overflow: hidden !important;
-    background-color: rgb(13, 17, 23) !important;
-    color: rgb(201, 209, 217) !important;
-    border-width: 1px !important;
-    border-style: solid !important;
-    border-color: rgb(48, 54, 61) !important;
-		box-sizing: border-box !important;
-		padding: 3px !important;
-	}
+	padding: 3px !important;
+}
 .categoryDropdown {
 	margin-bottom:1rem;
 }
