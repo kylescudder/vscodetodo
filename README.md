@@ -90,4 +90,8 @@ Removed colours from ToDo lists (looked a bit crap)
 Categories are now collapsable (styling on this to come, functionality more important)
 Input fields have been reduced in size to fit in more and themeing is now using vscode style variables.
 
+### 0.1.0
+
+Categories now have collapsed/expanded indicator
+
 pls be nice ☺
