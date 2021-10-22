@@ -55,3 +55,7 @@ Removed colours from ToDo lists (looked a bit crap)
 ## [0.2.0] - 22/10/2021
 ### Added
 - Categories can you be added via the front end. Yay 🥳🎉🥂
+
+## [0.2.1] - 22/10/2021
+### Added
+- `CHANGELOG.md` and `README.md` updated to fit VS Extension marketplace norms.
