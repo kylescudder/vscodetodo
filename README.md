@@ -1,20 +1,31 @@
 # vscodetodo README
 
- Another to do list extension for VSCode
+A lightweight to do extension for VSCode that connects to your GitHub account giving you all your notes from any VSCode instance, collapsable categories, retrieval for notes completed within the hour.
+
+Replace all of those sticky notes scattered around your desk with a simple virtual solution.
 
 ## Features
 
-A short to do list that allows users to track what they have done for a given piece of work. You know what a to do list is. Come on.
+- Your notes from any VSCode instance, just log into your GitHub account, and there they are
+- Collapsable categories for notes, allowing you to sort your notes into logical groups and only see what is important to you in that moment.
+- Easily add new categories on the fly for when a new project finds its way to you.
+- Uncomplete notes for up to an hour, for when you get ahead of yourself, or misclick. 
 
-For example if there is an image subfolder under your extension project workspace:
 
-![a to do list](https://i.imgur.com/9bDCkFt.png\ "Pretty basic stuff")
+
+![a to do list](https://i.imgur.com/9bDCkFt.png)
 
 Now with categories!
-![categories](https://i.imgur.com/25fsRUi.png\ "Now with categories!")
 
-To Do items grouped together by category
-![grouped by categories](https://i.imgur.com/SNJZtm6.png\ "Grouped by their categories")
+![categories](https://i.imgur.com/25fsRUi.png)
+
+Completed to dos are striked through for an hour before being removed.
+
+![grouped by categories](https://i.imgur.com/NUZ07Bd.png)
+
+Words of encouragement!
+
+![words of encouragement](https://i.imgur.com/KZ2gGO2.png)
 
 After 30 days of being completed, To Do items are removed to reduce clutter over long periods of time.
 
@@ -26,76 +37,15 @@ After 30 days of being completed, To Do items are removed to reduce clutter over
 1) A GitHub login
 1) Things to do
 
-<!-- ## Extension Settings
- -->
+## Setup
 
-
-<!-- For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something -->
+Just log in using your GitHub account and you are ready to go.
 
 ## Known Issues
 
 Currently the issues are:
 
-1) Input field not saving when moving away from tab.
-1) Design of list needs work
-
-## Release Notes
-
-### 0.0.1
-
-Initial release of my first extension.
-
-### 0.0.2
-
-Increased `font-size` and `padding-top` to improve readability
-
-### 0.0.3
-
-To Do items are removed 30 days after being completed.
-
-### 0.0.4
-
-Added categories for better organisation
-
-### 0.0.5
-
-`<ul>` brought back
-
-### 0.0.6
-
-If a category has no current To Dos then it is hidden to reduce clutter.
-
-### 0.0.7
-
-Hidden categories now re-appear without needing a reload when added to. 
-Reversed colouring statement to increase variation of category colouring.
-Converted db from Postgres to MongoDB to make hosting easier for me.
-API moved to seperate project to make hosting simpler for me.
-Removed unnecessary layers of directories
-
-### 0.0.8
-
-Now uses hosted API rather than having to have locally run Express server
-Fixed issue with selected categorie now being set on load
-
-### 0.0.9
-
-Fields now use VSCode dark theme colours to make it easier to see
-Removed colours from ToDo lists (looked a bit crap)
-Categories are now collapsable (styling on this to come, functionality more important)
-Input fields have been reduced in size to fit in more and themeing is now using vscode style variables.
-
-### 0.1.0
-
-Categories now have collapsed/expanded indicator
-
-### 0.2.0
-
-Categories can you be added via the front end. Yay 🥳🎉🥂
+1) Field input color hard to read
+1) Rules section needs removing
 
 pls be nice ☺
