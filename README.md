@@ -94,7 +94,7 @@ Input fields have been reduced in size to fit in more and themeing is now using 
 
 Categories now have collapsed/expanded indicator
 
-### 0.1.0
+### 0.2.0
 
 Categories can you be added via the front end. Yay 🥳🎉🥂
 
