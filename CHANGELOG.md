@@ -56,9 +56,10 @@ Removed colours from To Do lists (looked a bit crap)
 ### Added
 - Categories can you be added via the front end. Yay 🥳🎉🥂
 
-## [0.2.1] - 22/10/2021
+## [0.2.1] - 23/10/2021
 ### Added
 - `CHANGELOG.md` and `README.md` updated to fit VS Extension marketplace norms.
 ### Changed
 - Changed project name from 'VSCodeToDo' to 'Things To Do'.
 - Updated `README.md` photos
+- Changed name of extension from 'VSCodeToDo' to 'ThingsToDo'
