@@ -5,6 +5,10 @@
   "version": "0.2.0",
   "publisher": "kylescudder",
   "icon": "media/checklist.png",
+  "galleryBanner": {
+    "color": "#238636",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.53.0"
   },
