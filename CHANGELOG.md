@@ -1,6 +1,6 @@
 # Change Log
 
-All notable changes to the "vscodetodo" extension will be documented in this file.
+All notable changes to the Things To Do extension will be documented in this file.
 
 ## [0.0.1] - 19/02/2021
 
@@ -43,7 +43,7 @@ All notable changes to the "vscodetodo" extension will be documented in this fil
 ## [0.0.9] - 20/10/2021
 ### Changed
 - Fields now use VSCode dark theme colours to make it easier to see
-Removed colours from ToDo lists (looked a bit crap)
+Removed colours from To Do lists (looked a bit crap)
 - Categories are now collapsable (styling on this to come, functionality more important)
 - Input fields have been reduced in size to fit in more and themeing is now using vscode style variables.
 
@@ -59,3 +59,6 @@ Removed colours from ToDo lists (looked a bit crap)
 ## [0.2.1] - 22/10/2021
 ### Added
 - `CHANGELOG.md` and `README.md` updated to fit VS Extension marketplace norms.
+### Changed
+- Changed project name from 'VSCodeToDo' to 'Things To Do'.
+- Updated `README.md` photos

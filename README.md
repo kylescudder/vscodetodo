@@ -1,4 +1,4 @@
-# vscodetodo README
+# Things To Do
 
 A lightweight to do extension for VSCode that connects to your GitHub account giving you all your notes from any VSCode instance, collapsable categories, retrieval for notes completed within the hour.
 
@@ -13,11 +13,11 @@ Replace all of those sticky notes scattered around your desk with a simple virtu
 
 
 
-![a to do list](https://i.imgur.com/9bDCkFt.png)
+![a to do list](https://imgur.com/7Talpdc.png)
 
 Now with categories!
 
-![categories](https://i.imgur.com/25fsRUi.png)
+![categories](https://imgur.com/OMvFY7B.png)
 
 Completed to dos are striked through for an hour before being removed.
 
