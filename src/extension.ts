@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
 	context.subscriptions.push(
 	  vscode.window.registerWebviewViewProvider(
-		"vstodo-sidebar",
+		"thingstodo-sidebar",
 		sidebarProvider
 	  )
 	);
@@ -21,16 +21,16 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.StatusBarAlignment.Right
 	);
 	item.text = "$(tasklist) Add To Do";
-	item.command = "vscodetodo.addToDo";
+	item.command = "thingstodo.addToDo";
 	item.show();
 	
 	context.subscriptions.push(
-		vscode.commands.registerCommand("vscodetodo.refresh", () => {
+		vscode.commands.registerCommand("thingstodo.refresh", () => {
 			vscode.commands.executeCommand(
 				"workbench.action.closeSidebar"
 			);
 			vscode.commands.executeCommand(
-				"workbench.view.extension.vstodo-sidebar-view"
+				"workbench.view.extension.thingstodo-sidebar-view"
 			);
 			setTimeout(() => {
 				vscode.commands.executeCommand(
@@ -46,8 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 			);
 		})
 	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand("vscodetodo.addToDo", () => {
+		vscode.commands.registerCommand("thingstodo.addToDo", () => {
 			const {activeTextEditor} = vscode.window;
 
 			if (!activeTextEditor) {

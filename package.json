@@ -32,20 +32,20 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "vstodo-sidebar-view",
-          "title": "VSToDo",
+          "id": "thingstodo-sidebar-view",
+          "title": "Things To Do",
           "icon": "media/checklist.svg"
         }
       ]
     },
     "views": {
-      "vstodo-sidebar-view": [
+      "thingstodo-sidebar-view": [
         {
           "type": "webview",
-          "id": "vstodo-sidebar",
-          "name": "VSToDo",
+          "id": "thingstodo-sidebar",
+          "name": "Things To Do",
           "icon": "media/checklist.svg",
-          "contextualTitle": "VSToDo"
+          "contextualTitle": "ThingsToDo"
         }
       ]
     },
@@ -61,19 +61,19 @@
         "title": "Ask Question"
       },
       {
-        "command": "vscodetodo.refresh",
-        "category": "VSToDo",
+        "command": "thingstodo.refresh",
+        "category": "ThingsToDo",
         "title": "Refresh"
       },
       {
-        "command": "vscodetodo.addToDo",
-        "category": "VSToDo",
-        "title": "Add to VSToDo"
       },
       {
         "command": "vscodetodo.authenticate",
         "category": "VSToDo",
         "title": "Authenticate"
+        "command": "thingstodo.addToDo",
+        "category": "ThingsToDo",
+        "title": "Add to Things To Do"
       }
     ]
   },
