@@ -2,6 +2,10 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [0.2.2] - 25/10/2021
+### Removed
+Removed registered commands that were only used for testing.
+
 ## [0.2.1] - 23/10/2021
 ### Added
 - `CHANGELOG.md` and `README.md` updated to fit VS Extension marketplace norms.

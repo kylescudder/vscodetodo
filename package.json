@@ -2,7 +2,7 @@
   "name": "thingstodo",
   "displayName": "Things To Do",
   "description": "A lightweight to do extension for VSCode that connects to your GitHub account giving you all your notes from any VSCode instance. Replace all of those sticky notes scattered around your desk with a simple virtual solution.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "kylescudder",
   "icon": "media/checklist.png",
   "galleryBanner": {
@@ -20,12 +20,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscodetodo.helloWorld",
-    "onCommand:vscodetodo.askQuestion",
-    "onCommand:vscodetodo.refresh",
-    "onCommand:vscodetodo.addToDo",
-    "onCommand:vscodetodo.authenticate",
-    "onView:vstodo-sidebar"
+    "onCommand:thingstodo.refresh",
+    "onCommand:thingstodo.addToDo",
+    "onView:thingstodo-sidebar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -51,26 +48,11 @@
     },
     "commands": [
       {
-        "command": "vscodetodo.helloWorld",
-        "category": "VSToDo",
-        "title": "Hello World"
-      },
-      {
-        "command": "vscodetodo.askQuestion",
-        "category": "VSToDo",
-        "title": "Ask Question"
-      },
-      {
         "command": "thingstodo.refresh",
         "category": "ThingsToDo",
         "title": "Refresh"
       },
       {
-      },
-      {
-        "command": "vscodetodo.authenticate",
-        "category": "VSToDo",
-        "title": "Authenticate"
         "command": "thingstodo.addToDo",
         "category": "ThingsToDo",
         "title": "Add to Things To Do"

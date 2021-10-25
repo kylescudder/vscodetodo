@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { HelloWorldPanel } from './HelloWorldPanel';
 import { SidebarProvider } from './SidebarProvider';
 import * as auth from './authenticate';
 import { TokenManager } from './TokenManager';
@@ -32,20 +31,14 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.commands.executeCommand(
 				"workbench.view.extension.thingstodo-sidebar-view"
 			);
-			setTimeout(() => {
-				vscode.commands.executeCommand(
-					"workbench.action.webview.openDeveloperTools"
-				);
-			}, 500);
+			//setTimeout(() => {
+			//	vscode.commands.executeCommand(
+			//		"workbench.action.webview.openDeveloperTools"
+			//	);
+			//}, 500);
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand("vscodetodo.helloWorld", () => {
-			vscode.window.showInformationMessage(
-				"token value is: " + TokenManager.getToken()
-			);
-		})
-	);
 		vscode.commands.registerCommand("thingstodo.addToDo", () => {
 			const {activeTextEditor} = vscode.window;
 
@@ -62,11 +55,6 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		})
 	);
-	// context.subscriptions.push(
-	// 	vscode.commands.registerCommand("vscodetodo.authenticate", () => {
-	// 		authenticate();
-	// 	})
-	// );
 
 }
 export function deactivate() {}
