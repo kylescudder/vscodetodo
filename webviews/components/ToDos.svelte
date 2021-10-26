@@ -138,7 +138,8 @@
     text = "";
   }}
 >
-  <input bind:value={text} class="fieldInput" placeholder="Add this todo" />
+  <input bind:value={text}
+  class="fieldInput" placeholder="Add this todo" />
   <select
     bind:value={selected}
     on:blur={() => (answer = "")}
@@ -157,7 +158,7 @@
     categoryText = "";
   }}
 >
-  <input
+  <input 
     bind:value={categoryText}
     class="fieldInput categoryDropdown"
     placeholder="Add category"
