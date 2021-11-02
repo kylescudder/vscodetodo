@@ -41,38 +41,46 @@
   <div>loading...</div>
 {:else if user}
   {#if page === "todos"}
-    <ToDos {user} {accessToken} />
-    <button
-      on:click={() => {
-        page = "rules";
-      }}>Go to rule</button
-    >
+    <section class="fade-in">
+      <ToDos {user} {accessToken} />
+      <button
+        on:click={() => {
+          page = "rules";
+        }}>Go to rule</button
+      >
+    </section>
   {:else}
-    <div>Rules:</div>
-    <ol>
-      <li>
-        <p>To Do items are removed 30 days after being completed.</p>
-      </li>
-    </ol>
+    <section class="fade-in">
+      <div>Rules:</div>
+      <ol>
+        <li>
+          <p>To Do items are removed 30 days after being completed.</p>
+        </li>
+      </ol>
+      <button
+        on:click={() => {
+          page = "todos";
+        }}>Go to back</button
+      >
+    </section>
+  {/if}
+  <section class="fade-in">
     <button
       on:click={() => {
-        page = "todos";
-      }}>Go to back</button
+        accessToken = "";
+        user = null;
+        tsvscode.postMessage({ type: "logout", value: undefined });
+      }}>Logout</button
     >
-  {/if}
-  <button
-    on:click={() => {
-      accessToken = "";
-      user = null;
-      tsvscode.postMessage({ type: "logout", value: undefined });
-    }}>Logout</button
-  >
+  </section>
 {:else}
-  <button
-    on:click={() => {
-      tsvscode.postMessage({ type: "authenticate", value: undefined });
-    }}>Login with GitHub</button
-  >
+  <section class="fade-in">
+    <button
+      on:click={() => {
+        tsvscode.postMessage({ type: "authenticate", value: undefined });
+      }}>Login with GitHub</button
+    >
+  </section>
 {/if}
 
 <style>

@@ -2,6 +2,10 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [0.2.4] - 02/11/2021
+### Added
+Added Fade In animation to most elements to hide elements popping in.
+
 ## [0.2.3] - 25/10/2021
 ### Changed
 Finally got around to fixing poor visibility on input fields, text colour now visible.

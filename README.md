@@ -12,18 +12,18 @@ Replace all of those sticky notes scattered around your desk with a simple virtu
 - Uncomplete notes for up to an hour, for when you get ahead of yourself, or misclick. 
 
 
-
+## See your to dos in an organised list! 
 ![a to do list](https://imgur.com/7Talpdc.png)
 
-Now with categories!
+## Now with categories!
 
 ![categories](https://imgur.com/OMvFY7B.png)
 
-Completed to dos are striked through for an hour before being removed.
+## Completed to dos are striked through for an hour before being removed.
 
 ![grouped by categories](https://i.imgur.com/NUZ07Bd.png)
 
-Words of encouragement!
+## Words of encouragement!
 
 ![words of encouragement](https://i.imgur.com/KZ2gGO2.png)
 
@@ -45,7 +45,6 @@ Just log in using your GitHub account and you are ready to go.
 
 Currently the issues are:
 
-1) Field input color hard to read
 1) Rules section needs removing
 
 pls be nice ☺
