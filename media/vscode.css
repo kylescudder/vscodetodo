@@ -92,7 +92,7 @@ textarea::placeholder {
 .card {
   padding: 20px;
   border: 2px solid var(--vscode-button-background);
-  margin-block-start: -6px;
+  margin-block-start: -2px;
 }
 .hidden {
   opacity: 0;
@@ -183,4 +183,7 @@ li {
   100% {
     opacity: 1;
   }
+}
+.buttonMargin {
+  margin-top: 5px;
 }

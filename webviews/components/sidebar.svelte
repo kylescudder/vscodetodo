@@ -43,7 +43,7 @@
   {#if page === "todos"}
     <section class="fade-in">
       <ToDos {user} {accessToken} />
-      <button
+      <button class="buttonMargin"
         on:click={() => {
           page = "rules";
         }}>Go to rule</button
@@ -57,7 +57,7 @@
           <p>To Do items are removed 30 days after being completed.</p>
         </li>
       </ol>
-      <button
+      <button class="buttonMargin"
         on:click={() => {
           page = "todos";
         }}>Go to back</button
