@@ -2,6 +2,11 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [0.2.5] - 04/11/2021
+### Changed
+Categories are now linked to the user that added them.
+To Dos now store categorieId rather that categorieText.
+
 ## [0.2.4] - 02/11/2021
 ### Added
 Added Fade In animation to most elements to hide elements popping in.
