@@ -12,7 +12,7 @@
     text: String;
     completed: boolean;
     id: number;
-    categorieText: string;
+    categorieId: number;
   }> = [];
   let selected: number;
   let answer = "";
@@ -22,12 +22,12 @@
     randomColour: string;
   }> = [];
 
-  async function addToDo(t: string, categorieText: string) {
+  async function addToDo(t: string, categorieId: number) {
     const response = await fetch(`${apiBaseUrl}/todo`, {
       method: "POST",
       body: JSON.stringify({
         text: t,
-        categorieText: categorieText,
+        categorieId: categorieId,
       }),
       headers: {
         "content-type": "application/json",
@@ -91,7 +91,7 @@
       const message = event.data; // The json data that the extension sent
       switch (message.type) {
         case "new-todo":
-          addToDo(message.value, selected.toString());
+          addToDo(message.value, selected);
           break;
       }
     });
@@ -110,7 +110,7 @@
     });
     const categoriePayload = await categorieResponse.json();
     categorie = categoriePayload.payload;
-    selected = categorie[0].text;
+    selected = categorie[0].id;
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
@@ -134,7 +134,7 @@
 <div>Hello {user.name}</div>
 <form
   on:submit|preventDefault={async () => {
-    addToDo(text, selected.toString());
+    addToDo(text, selected);
     text = "";
   }}
 >
@@ -146,7 +146,7 @@
     class="fieldInput categoryDropdown"
   >
     {#each categorie as categories}
-      <option value={categories.text}>
+      <option value={categories.id}>
         {categories.text}
       </option>
     {/each}
@@ -171,7 +171,7 @@
     </h2>
     <ul class="collapsed">
       {#each todos as todo (todo.id)}
-        {#if categories.text === todo.categorieText}
+        {#if categories.id === todo.categorieId}
           <li
             class:completed={todo.completed}
             on:click={async () => {

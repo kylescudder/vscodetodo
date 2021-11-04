@@ -556,9 +556,9 @@ var app = (function () {
     			option = element("option");
     			t0 = text(t0_value);
     			t1 = space();
-    			option.__value = option_value_value = /*categories*/ ctx[21].text;
+    			option.__value = option_value_value = /*categories*/ ctx[21].id;
     			option.value = option.__value;
-    			add_location(option, file$1, 152, 6, 5215);
+    			add_location(option, file$1, 152, 6, 5185);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -568,7 +568,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			if (dirty & /*categorie*/ 128 && t0_value !== (t0_value = /*categories*/ ctx[21].text + "")) set_data_dev(t0, t0_value);
 
-    			if (dirty & /*categorie*/ 128 && option_value_value !== (option_value_value = /*categories*/ ctx[21].text)) {
+    			if (dirty & /*categorie*/ 128 && option_value_value !== (option_value_value = /*categories*/ ctx[21].id)) {
     				prop_dev(option, "__value", option_value_value);
     				option.value = option.__value;
     			}
@@ -589,7 +589,7 @@ var app = (function () {
     	return block;
     }
 
-    // (178:8) {#if categories.text === todo.categorieText}
+    // (178:8) {#if categories.id === todo.categorieId}
     function create_if_block$1(ctx) {
     	let li;
     	let t0_value = /*todo*/ ctx[24].text + "";
@@ -609,7 +609,7 @@ var app = (function () {
     			t1 = space();
     			attr_dev(li, "class", "svelte-1lbowwj");
     			toggle_class(li, "completed", /*todo*/ ctx[24].completed);
-    			add_location(li, file$1, 178, 10, 5893);
+    			add_location(li, file$1, 178, 10, 5857);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, li, anchor);
@@ -640,7 +640,7 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(178:8) {#if categories.text === todo.categorieText}",
+    		source: "(178:8) {#if categories.id === todo.categorieId}",
     		ctx
     	});
 
@@ -651,7 +651,7 @@ var app = (function () {
     function create_each_block_1(key_1, ctx) {
     	let first;
     	let if_block_anchor;
-    	let if_block = /*categories*/ ctx[21].text === /*todo*/ ctx[24].categorieText && create_if_block$1(ctx);
+    	let if_block = /*categories*/ ctx[21].id === /*todo*/ ctx[24].categorieId && create_if_block$1(ctx);
 
     	const block = {
     		key: key_1,
@@ -670,7 +670,7 @@ var app = (function () {
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
 
-    			if (/*categories*/ ctx[21].text === /*todo*/ ctx[24].categorieText) {
+    			if (/*categories*/ ctx[21].id === /*todo*/ ctx[24].categorieId) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
@@ -744,12 +744,12 @@ var app = (function () {
 
     			t3 = space();
     			attr_dev(span, "id", "colIcon");
-    			add_location(span, file$1, 173, 23, 5719);
-    			add_location(h2, file$1, 172, 4, 5648);
+    			add_location(span, file$1, 173, 23, 5687);
+    			add_location(h2, file$1, 172, 4, 5616);
     			attr_dev(ul, "class", "collapsed");
-    			add_location(ul, file$1, 175, 4, 5766);
+    			add_location(ul, file$1, 175, 4, 5734);
     			attr_dev(div, "class", "card");
-    			add_location(div, file$1, 171, 2, 5624);
+    			add_location(div, file$1, 171, 2, 5592);
     			this.first = div;
     		},
     		m: function mount(target, anchor) {
@@ -868,18 +868,18 @@ var app = (function () {
     			}
 
     			each1_anchor = empty();
-    			add_location(div, file$1, 137, 0, 4826);
+    			add_location(div, file$1, 137, 0, 4807);
     			attr_dev(input0, "class", "fieldInput");
     			attr_dev(input0, "placeholder", "Add this todo");
-    			add_location(input0, file$1, 144, 2, 4974);
+    			add_location(input0, file$1, 144, 2, 4944);
     			attr_dev(select, "class", "fieldInput categoryDropdown");
     			if (/*selected*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[12].call(select));
-    			add_location(select, file$1, 146, 2, 5055);
-    			add_location(form0, file$1, 138, 0, 4856);
+    			add_location(select, file$1, 146, 2, 5025);
+    			add_location(form0, file$1, 138, 0, 4837);
     			attr_dev(input1, "class", "fieldInput categoryDropdown");
     			attr_dev(input1, "placeholder", "Add category");
-    			add_location(input1, file$1, 164, 2, 5445);
-    			add_location(form1, file$1, 158, 0, 5328);
+    			add_location(input1, file$1, 164, 2, 5413);
+    			add_location(form1, file$1, 158, 0, 5296);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -1080,11 +1080,11 @@ var app = (function () {
     	let answer = "";
     	let categorie = [];
 
-    	function addToDo(t, categorieText) {
+    	function addToDo(t, categorieId) {
     		return __awaiter(this, void 0, void 0, function* () {
     			yield fetch(`${apiBaseUrl$1}/todo`, {
     				method: "POST",
-    				body: JSON.stringify({ text: t, categorieText }),
+    				body: JSON.stringify({ text: t, categorieId }),
     				headers: {
     					"content-type": "application/json",
     					authorization: `Bearer ${accessToken}`
@@ -1150,7 +1150,7 @@ var app = (function () {
 
     			switch (message.type) {
     				case "new-todo":
-    					addToDo(message.value, selected.toString());
+    					addToDo(message.value, selected);
     					break;
     			}
     		}));
@@ -1172,7 +1172,7 @@ var app = (function () {
 
     			const categoriePayload = yield categorieResponse.json();
     			$$invalidate(7, categorie = categoriePayload.payload);
-    			$$invalidate(5, selected = categorie[0].text);
+    			$$invalidate(5, selected = categorie[0].id);
 
     			setTimeout(
     				function () {
@@ -1203,7 +1203,7 @@ var app = (function () {
     	const blur_handler = () => $$invalidate(6, answer = "");
 
     	const submit_handler = async () => {
-    		addToDo(text, selected.toString());
+    		addToDo(text, selected);
     		$$invalidate(2, text = "");
     	};
 
@@ -1369,9 +1369,9 @@ var app = (function () {
     			section = element("section");
     			button = element("button");
     			button.textContent = "Login with GitHub";
-    			add_location(button, file, 82, 4, 2724);
+    			add_location(button, file, 82, 4, 2766);
     			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 81, 2, 2693);
+    			add_location(section, file, 81, 2, 2735);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, section, anchor);
@@ -1431,9 +1431,9 @@ var app = (function () {
     			section = element("section");
     			button = element("button");
     			button.textContent = "Logout";
-    			add_location(button, file, 72, 4, 2484);
+    			add_location(button, file, 72, 4, 2526);
     			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 71, 2, 2453);
+    			add_location(section, file, 71, 2, 2495);
     		},
     		m: function mount(target, anchor) {
     			if_blocks[current_block_type_index].m(target, anchor);
@@ -1561,14 +1561,15 @@ var app = (function () {
     			t3 = space();
     			button = element("button");
     			button.textContent = "Go to back";
-    			add_location(div, file, 58, 6, 2171);
-    			add_location(p, file, 61, 10, 2226);
+    			add_location(div, file, 58, 6, 2192);
+    			add_location(p, file, 61, 10, 2247);
     			attr_dev(li, "class", "svelte-1g4i4c3");
-    			add_location(li, file, 60, 8, 2210);
-    			add_location(ol, file, 59, 6, 2196);
-    			add_location(button, file, 64, 6, 2323);
+    			add_location(li, file, 60, 8, 2231);
+    			add_location(ol, file, 59, 6, 2217);
+    			attr_dev(button, "class", "buttonMargin");
+    			add_location(button, file, 64, 6, 2344);
     			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 57, 4, 2138);
+    			add_location(section, file, 57, 4, 2159);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, section, anchor);
@@ -1631,6 +1632,7 @@ var app = (function () {
     			t0 = space();
     			button = element("button");
     			button.textContent = "Go to rule";
+    			attr_dev(button, "class", "buttonMargin");
     			add_location(button, file, 50, 6, 2004);
     			attr_dev(section, "class", "fade-in");
     			add_location(section, file, 48, 4, 1933);
