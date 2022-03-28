@@ -2,6 +2,10 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [0.2.6] - 26/03/2022
+### Changed
+Updated packages
+
 ## [0.2.5] - 04/11/2021
 ### Changed
 Categories are now linked to the user that added them.
