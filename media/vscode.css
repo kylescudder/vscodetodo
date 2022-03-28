@@ -42,18 +42,21 @@ code {
   font-size: var(--vscode-editor-font-size);
   font-family: var(--vscode-editor-font-family);
 }
-
-button {
+button, .bi {
   border: none;
   padding: var(--input-padding-vertical) var(--input-padding-horizontal);
   width: 100%;
   text-align: center;
   outline: 1px solid transparent;
   outline-offset: 2px !important;
-  color: var(--vscode-button-foreground);
+}
+button {
+  color: var(--vscode-foreground);
   background: var(--vscode-button-background);
 }
-
+.bi {
+  color: var(--vscode-button-background);
+}
 button:hover {
   cursor: pointer;
   background: var(--vscode-button-hoverBackground);
@@ -99,6 +102,7 @@ textarea::placeholder {
 }
 li {
   cursor: pointer;
+  display: flex;
 }
 .fieldInput {
   padding: 3px !important;
@@ -186,4 +190,14 @@ li {
 }
 .buttonMargin {
   margin-top: 5px;
+}
+.card {
+  max-width: 960px;
+  border-radius: var(--border-radius-primary);
+  box-shadow: 24px 24px 80px rgba(0,0,0,0.1);
+  padding: 20px 20px 28px 20px;
+  box-sizing: border-box;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
 }
