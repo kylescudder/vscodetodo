@@ -35,7 +35,6 @@
 </script>
 
 <div>
-  <h1>To Do List</h1>
 </div>
 {#if loading}
   <div>loading...</div>
