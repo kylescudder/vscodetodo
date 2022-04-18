@@ -2,26 +2,39 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [0.3.0] - 18/04/2022
+### Added
+- Target date field added, this allows a user to set a deadline for a ToDo.
+- Added list of features to the handy Tips section
+### Changed
+- Redesigned/restyled just about everything.
+- The additon of tailwindcss to the project allowed me to clean up and remove lots of crappy css (I'm not front end designer!)
+- Changed text of Go To Rules button
+- Updated CHANGELOG formatting.
+### Removed
+- Removed lots of old unused files/sections of files that were there from early testing days that I had not got around to cleaning.
+
+
 ## [0.2.6] - 26/03/2022
 ### Changed
-Updated packages
+- Updated packages
 
 ## [0.2.5] - 04/11/2021
 ### Changed
-Categories are now linked to the user that added them.
-To Dos now store categorieId rather that categorieText.
+- Categories are now linked to the user that added them.
+- To Dos now store categorieId rather that categorieText.
 
 ## [0.2.4] - 02/11/2021
 ### Added
-Added Fade In animation to most elements to hide elements popping in.
+- Added Fade In animation to most elements to hide elements popping in.
 
 ## [0.2.3] - 25/10/2021
 ### Changed
-Finally got around to fixing poor visibility on input fields, text colour now visible.
+- Finally got around to fixing poor visibility on input fields, text colour now visible.
 
 ## [0.2.2] - 25/10/2021
 ### Removed
-Removed registered commands that were only used for testing.
+- Removed registered commands that were only used for testing.
 
 ## [0.2.1] - 23/10/2021
 ### Added
