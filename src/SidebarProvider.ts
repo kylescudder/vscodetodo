@@ -76,17 +76,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    const styleResetUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
-    );
     const styleVSCodeUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
+        vscode.Uri.joinPath(this._extensionUri, "src/css", "vscode.css")
+    );
+    const styleTailwindUri = webview.asWebviewUri(
+        vscode.Uri.joinPath(this._extensionUri, "src/css", "app.css")
     );
     const scriptUri = webview.asWebviewUri(
         vscode.Uri.joinPath(this._extensionUri, "media", "sidebar.js")
     );
     const styleMainUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(this._extensionUri, "media", "sidebar.css")
+        vscode.Uri.joinPath(this._extensionUri, "src/css", "sidebar.css")
     );
 
     // Use a nonce to only allow a specific script to be run.
