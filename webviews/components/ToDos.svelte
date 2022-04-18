@@ -200,6 +200,7 @@
     addCategory(categoryText);
     categoryText = "";
   }}
+  class="mt-4 mb-8"
 >
   <input 
     bind:value={categoryText}
