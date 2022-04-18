@@ -3,13 +3,17 @@
   import { children } from "svelte/internal";
   import type { User } from "../types";
   import { apiBaseUrl } from "../../src/constants";
+  import dayjs from 'dayjs'
 
   export let user: User;
   export let accessToken: string;
-  let text = '';
-  let categoryText = '';
+  let text = "";
+  let targetDate = "";
+  let categoryText = "";
   let todos: Array<{
     text: String;
+    targetDate: Date;
+    targetDateString: string;
     completed: boolean;
     id: number;
     categorieId: number;
@@ -22,11 +26,12 @@
     randomColour: string;
   }> = [];
 
-  async function addToDo(t: string, categorieId: number) {
+  async function addToDo(t: string, targetDate: string, categorieId: number) {
     const response = await fetch(`${apiBaseUrl}/todo`, {
       method: "POST",
       body: JSON.stringify({
         text: t,
+        targetDate: targetDate,
         categorieId: categorieId,
       }),
       headers: {
@@ -43,6 +48,7 @@
       hideEmptyCategories();
     }, 100);
   }
+
   async function addCategory(t: string) {
     const response = await fetch(`${apiBaseUrl}/category`, {
       method: 'POST',
@@ -73,6 +79,10 @@
     });
     const payload = await response.json();
     todos = payload.data;
+    todos.forEach(todo => {
+      todo.targetDateString = dayjs(todo.targetDate).format('DD/MM/YYYY HH:mm')
+    });
+    categoryPopulate();
     return todos;
   }
 
@@ -91,7 +101,7 @@
       const message = event.data; // The json data that the extension sent
       switch (message.type) {
         case "new-todo":
-          addToDo(message.value, selected);
+          addToDo(message.value, '', selected);
           break;
       }
     });
@@ -160,12 +170,13 @@
 <div>Hello {user.name}</div>
 <form
   on:submit|preventDefault={async () => {
-    addToDo(text, selected);
+    addToDo(text, targetDate, selected);
     text = "";
+    targetDate = "";
   }}
 >
-  <input bind:value={text}
-  class="fieldInput" placeholder="Add this todo" />
+  <input bind:value={text} placeholder="Add this todo" />
+  <input bind:value={targetDate}  type="datetime-local" placeholder="Add target date" />
   <select
     bind:value={selected}
     on:blur={() => (answer = "")}
