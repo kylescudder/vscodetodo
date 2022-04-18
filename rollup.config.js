@@ -26,14 +26,11 @@ export default fs
         svelte({
           // enable run-time checks when not in production
           dev: !production,
-          // we'll extract any component CSS out into
-          // a separate file - better for performance
-          css: (css) => {
-            css.write(name + ".css");
-          },
           preprocess: sveltePreprocess(),
         }),
-
+          // we'll extract any component CSS out into
+          // a separate file - better for performance
+        css({ output: name + ".css" }),
         // If you have external dependencies installed from
         // npm, you'll most likely need these plugins. In
         // some cases you'll need additional configuration -
