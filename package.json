@@ -60,8 +60,10 @@
     ]
   },
   "scripts": {
-    "extbuild": "concurrently \"rollup -c -w\" \"webpack --mode production --devtool hidden-source-map\"",
-    "watch": "concurrently \"rollup -c -w\" \"webpack --watch --mode production --devtool hidden-source-map\""
+    "watch": "concurrently \"rollup -c -w\" \"webpack --watch --mode production --devtool hidden-source-map\"",
+    "watch-css": "postcss src/css/tailwind.css -o src/css/app.css --watch",
+    "build": "concurrently \"rollup -c -w\" \"webpack --mode production --devtool hidden-source-map\"",
+    "build-css": "npx tailwindcss src/css/tailwind.css -o src/css/app.css --minify"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
