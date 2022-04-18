@@ -165,11 +165,11 @@
   />
 </form>
 {#each categorie as categories (categories.id)}
-  <div class="card">
     <h2 on:click={(event) => categoryHide(event)}>
       {categories.text}<span id="colIcon">&gt;</span>
+  <section class="card">
     </h2>
-    <ul class="collapsed">
+    <div class="panel">
       {#each todos as todo (todo.id)}
         {#if categories.id === todo.categorieId}
           <article class="card"
@@ -215,8 +215,8 @@
               </article>
         {/if}
       {/each}
-    </ul>
-  </div>
+    </div>
+  </section>
 {/each}
 
 <style>
