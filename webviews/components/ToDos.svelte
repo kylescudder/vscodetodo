@@ -220,12 +220,5 @@
 {/each}
 
 <style>
-  .completed {
-    text-decoration: line-through;
-    color: rgba(255, 255, 255, 0.5);
-  }
-  li {
-    padding-top: 0.5rem;
-    font-size: calc(11px + 0.5rem);
-  }
+
 </style>

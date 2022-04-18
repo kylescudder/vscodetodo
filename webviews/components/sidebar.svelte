@@ -82,10 +82,3 @@
     >
   </section>
 {/if}
-
-<style>
-  li {
-    padding-top: 0.5rem;
-    font-size: calc(11px + 0.5rem);
-  }
-</style>
