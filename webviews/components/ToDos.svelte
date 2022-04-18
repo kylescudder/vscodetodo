@@ -129,6 +129,32 @@
       }
     }
   }
+  async function clickToDo(todo) {
+    todo.completed = !todo.completed;
+    const response = await fetch(`${apiBaseUrl}/todo`, {
+      method: "PUT",
+      body: JSON.stringify({
+        id: todo.id,
+      }),
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${accessToken}`,
+      },
+    });
+    getToDo()
+      .then(() => {})
+      .catch(() => {
+        console.log("Getting todos failed");
+      });
+    if (todo.completed) {
+      tsvscode.postMessage({
+        type: "onInfo",
+        value: todo.text + " completed! Well done 🥳",
+      });
+    }
+    const payload = await response.json();
+    todos = payload.todos;
+  }
 </script>
 
 <div>Hello {user.name}</div>
@@ -174,23 +200,6 @@
         {#if categories.id === todo.categorieId}
           <article class="card"
             class:completed={todo.completed}
-            on:click={async () => {
-              todo.completed = !todo.completed;
-              const response = await fetch(`${apiBaseUrl}/todo`, {
-                method: "PUT",
-                body: JSON.stringify({
-                  id: todo.id,
-                }),
-                headers: {
-                  "content-type": "application/json",
-                  authorization: `Bearer ${accessToken}`,
-                },
-              });
-              getToDo()
-                .then(() => {})
-                .catch(() => {
-                  console.log("Getting todos failed");
-                });
               if (todo.completed) {
                 tsvscode.postMessage({
                   type: "onInfo",
@@ -202,6 +211,7 @@
             }}
           >
             {todo.text}
+            on:click={clickToDo(todo)}
             <span class="todoImg col-span-1">
               {#if todo.completed}
                 <i class="fa-solid fa-circle-check ml-3 checkedIcon text-2xl"></i>
