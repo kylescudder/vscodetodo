@@ -198,20 +198,21 @@
     <div class="panel">
       {#each todos as todo (todo.id)}
         {#if categories.id === todo.categorieId}
-          <article class="card"
-            class:completed={todo.completed}
-              if (todo.completed) {
-                tsvscode.postMessage({
-                  type: "onInfo",
-                  value: todo.text + " completed! Well done 🥳",
-                });
-              }
-              const payload = await response.json();
-              todos = payload.todos;
-            }}
-          >
-            {todo.text}
+          <article
+            class="todoArticle pt-2 text-base grid grid-cols-6"
             on:click={clickToDo(todo)}
+            >
+            <span class="col-span-5 grid grid-cols-4"
+              class:completed={todo.completed}
+              class:uncompleted={!todo.completed}
+            >
+              <span class="todoText col-span-2">
+                {todo.text}
+              </span>
+              <span class="col-span-2">
+                 {todo.targetDateString}
+              </span>
+            </span>
             <span class="todoImg col-span-1">
               {#if todo.completed}
                 <i class="fa-solid fa-circle-check ml-3 checkedIcon text-2xl"></i>
