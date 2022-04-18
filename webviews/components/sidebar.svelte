@@ -46,13 +46,29 @@
       <button class="buttonMargin"
         on:click={() => {
           page = "rules";
-        }}>Go to rule</button
+        }}>What can I do with ThingsToDo?</button
       >
     </section>
   {:else}
     <section class="fade-in">
-      <div>Rules:</div>
-      <ol>
+      <div>Handy tips:</div>
+      <ol type="1">
+        <li>
+          <p>Before you can add any Things To Do, you need to create a category. 
+            To create a category just type the name into the 'Add Category' field press Enter
+            This helps you keep yours Things To Do in manageable areas.</p>
+        </li>
+        <li>
+          <p>If you are on a deadline, you can add a target date/time. 
+            When it is 60 minutes before the target date, it will turn yellow.
+            When it is 30 minutes before the target date, it will turn orange.
+            When the target date/time has passed, it will turn red.<br />
+            A target date/time is optional.</p>
+        </li>
+        <li>
+          <p>When the extension is initially loaded the categories are collapsed.
+            To expand on a section click on the category name. To collapse it just click it the same.</p>
+        </li>
         <li>
           <p>To Do items are removed 30 days after being completed.</p>
         </li>
@@ -60,7 +76,7 @@
       <button class="buttonMargin"
         on:click={() => {
           page = "todos";
-        }}>Go to back</button
+        }}>Go to my ThingsToDo</button
       >
     </section>
   {/if}
