@@ -31,7 +31,7 @@
         {
           "id": "thingstodo-sidebar-view",
           "title": "Things To Do",
-          "icon": "media/checklist.svg"
+          "icon": "src/images/checklist.svg"
         }
       ]
     },
@@ -41,7 +41,7 @@
           "type": "webview",
           "id": "thingstodo-sidebar",
           "name": "Things To Do",
-          "icon": "media/checklist.svg",
+          "icon": "src/images/checklist.svg",
           "contextualTitle": "ThingsToDo"
         }
       ]
