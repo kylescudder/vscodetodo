@@ -205,9 +205,9 @@
   }}
   class="mt-4 mb-8"
 >
-  <input 
+<p class="text-lg">Add Category</p>
+  <input
     bind:value={categoryText}
-    class="fieldInput categoryDropdown"
     placeholder="Add category"
   />
 </form>
