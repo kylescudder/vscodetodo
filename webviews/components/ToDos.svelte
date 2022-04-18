@@ -140,7 +140,6 @@
         element.setAttribute("style", "display: none;");
       } else {
         element.removeAttribute("style");
-        element.setAttribute("style", "display: block;");
       }
     }
   }
