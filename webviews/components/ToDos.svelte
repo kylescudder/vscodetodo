@@ -210,8 +210,8 @@
 </form>
 <p class="text-lg">To Do List</p>
 {#each categorie as categories (categories.id)}
-    <h2 on:click={(event) => categoryHide(event)}>
   <section class="card">
+    <h2 on:click={(event) => categoryHide(event)} class="categoryHeader text-2xl">
       {categories.text}<i class="fa-solid fa-arrow-right pl-2"></i>
     </h2>
     <div class="panel">
