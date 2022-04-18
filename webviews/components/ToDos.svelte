@@ -172,7 +172,11 @@
   }
 </script>
 
-<div>Hello {user.name}</div>
+<span class="grid grid-cols-4">
+  <p class="text-lg col-span-3">Hello {user.name}</p>
+  <i class="fa-solid fa-arrow-rotate-right col-span-1 text-lg float-right"
+  on:click={() => {tsvscode.postMessage({ type: "refresh", value: undefined });}}></i>
+</span>
 <form
   on:submit|preventDefault={async () => {
     addToDo(text, targetDate, selected);

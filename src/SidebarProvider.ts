@@ -24,6 +24,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
+        case "refresh": {
+            vscode.commands.executeCommand(
+              "workbench.action.closeSidebar"
+            );
+            vscode.commands.executeCommand(
+              "workbench.view.extension.thingstodo-sidebar-view"
+            );
+          break;
+        }
         case "get-token": {
           webviewView.webview.postMessage({ 
             type: 'token', 
