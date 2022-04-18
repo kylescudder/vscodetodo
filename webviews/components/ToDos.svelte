@@ -87,12 +87,17 @@
   }
 
   function categoryHide(event) {
-    if (!event.target.nextElementSibling.classList.contains("collapsed")) {
-      event.target.nextElementSibling.classList.add("collapsed");
-      event.target.firstElementChild.classList.remove("expanded");
+    let target = event.target
+    if (event.target.localName === 'i') {
+      target = event.target.parentElement
+    }
+
+    if (target.nextElementSibling.style.maxHeight) {
+      target.nextElementSibling.style.maxHeight = null;
+      target.firstElementChild.classList.remove("expandedIcon");
     } else {
-      event.target.nextElementSibling.classList.remove("collapsed");
-      event.target.firstElementChild.classList.add("expanded");
+      target.nextElementSibling.style.maxHeight = target.nextElementSibling.scrollHeight + "px";
+      target.firstElementChild.classList.add("expandedIcon");
     }
   }
 
