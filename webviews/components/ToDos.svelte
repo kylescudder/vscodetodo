@@ -211,8 +211,8 @@
 <p class="text-lg">To Do List</p>
 {#each categorie as categories (categories.id)}
     <h2 on:click={(event) => categoryHide(event)}>
-      {categories.text}<span id="colIcon">&gt;</span>
   <section class="card">
+      {categories.text}<i class="fa-solid fa-arrow-right pl-2"></i>
     </h2>
     <div class="panel">
       {#each todos as todo (todo.id)}
