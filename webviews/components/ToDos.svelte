@@ -193,6 +193,7 @@
       </option>
     {/each}
   </select>
+  <button type="submit">Add</button>
 </form>
 <form
   on:submit|preventDefault={async () => {
