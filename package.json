@@ -2,7 +2,7 @@
   "name": "thingstodo",
   "displayName": "Things To Do",
   "description": "A lightweight to do extension for VSCode that connects to your GitHub account giving you all your notes from any VSCode instance. Replace all of those sticky notes scattered around your desk with a simple virtual solution.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "publisher": "kylescudder",
   "icon": "media/checklist.png",
   "galleryBanner": {
