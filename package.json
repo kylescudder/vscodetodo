@@ -10,7 +10,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.53.0"
+    "vscode": "^1.65.0"
   },
   "repository": {
     "type": "git",
