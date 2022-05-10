@@ -2,11 +2,6 @@ var app = (function () {
     'use strict';
 
     function noop() { }
-    function add_location(element, file, line, column, char) {
-        element.__svelte_meta = {
-            loc: { file, line, column, char }
-        };
-    }
     function run(fn) {
         return fn();
     }
@@ -25,7 +20,6 @@ var app = (function () {
     function is_empty(obj) {
         return Object.keys(obj).length === 0;
     }
-
     function append(target, node) {
         target.appendChild(node);
     }
@@ -73,6 +67,11 @@ var app = (function () {
     function children(element) {
         return Array.from(element.childNodes);
     }
+    function set_data(text, data) {
+        data = '' + data;
+        if (text.wholeText !== data)
+            text.data = data;
+    }
     function set_input_value(input, value) {
         input.value = value == null ? '' : value;
     }
@@ -84,6 +83,7 @@ var app = (function () {
                 return;
             }
         }
+        select.selectedIndex = -1; // no option should be selected
     }
     function select_value(select) {
         const selected_option = select.querySelector(':checked') || select.options[0];
@@ -91,11 +91,6 @@ var app = (function () {
     }
     function toggle_class(element, name, toggle) {
         element.classList[toggle ? 'add' : 'remove'](name);
-    }
-    function custom_event(type, detail) {
-        const e = document.createEvent('CustomEvent');
-        e.initCustomEvent(type, false, false, detail);
-        return e;
     }
 
     let current_component;
@@ -126,22 +121,40 @@ var app = (function () {
     function add_render_callback(fn) {
         render_callbacks.push(fn);
     }
-    let flushing = false;
+    // flush() calls callbacks in this order:
+    // 1. All beforeUpdate callbacks, in order: parents before children
+    // 2. All bind:this callbacks, in reverse order: children before parents.
+    // 3. All afterUpdate callbacks, in order: parents before children. EXCEPT
+    //    for afterUpdates called during the initial onMount, which are called in
+    //    reverse order: children before parents.
+    // Since callbacks might update component values, which could trigger another
+    // call to flush(), the following steps guard against this:
+    // 1. During beforeUpdate, any updated components will be added to the
+    //    dirty_components array and will cause a reentrant call to flush(). Because
+    //    the flush index is kept outside the function, the reentrant call will pick
+    //    up where the earlier call left off and go through all dirty components. The
+    //    current_component value is saved and restored so that the reentrant call will
+    //    not interfere with the "parent" flush() call.
+    // 2. bind:this callbacks cannot trigger new flush() calls.
+    // 3. During afterUpdate, any updated components will NOT have their afterUpdate
+    //    callback called a second time; the seen_callbacks set, outside the flush()
+    //    function, guarantees this behavior.
     const seen_callbacks = new Set();
+    let flushidx = 0; // Do *not* move this inside the flush() function
     function flush() {
-        if (flushing)
-            return;
-        flushing = true;
+        const saved_component = current_component;
         do {
             // first, call beforeUpdate functions
             // and update components
-            for (let i = 0; i < dirty_components.length; i += 1) {
-                const component = dirty_components[i];
+            while (flushidx < dirty_components.length) {
+                const component = dirty_components[flushidx];
+                flushidx++;
                 set_current_component(component);
                 update(component.$$);
             }
             set_current_component(null);
             dirty_components.length = 0;
+            flushidx = 0;
             while (binding_callbacks.length)
                 binding_callbacks.pop()();
             // then, once components are updated, call
@@ -161,8 +174,8 @@ var app = (function () {
             flush_callbacks.pop()();
         }
         update_scheduled = false;
-        flushing = false;
         seen_callbacks.clear();
+        set_current_component(saved_component);
     }
     function update($$) {
         if ($$.fragment !== null) {
@@ -211,12 +224,6 @@ var app = (function () {
             block.o(local);
         }
     }
-
-    const globals = (typeof window !== 'undefined'
-        ? window
-        : typeof globalThis !== 'undefined'
-            ? globalThis
-            : global);
 
     function destroy_block(block, lookup) {
         block.d(1);
@@ -297,16 +304,6 @@ var app = (function () {
             insert(new_blocks[n - 1]);
         return new_blocks;
     }
-    function validate_each_keys(ctx, list, get_context, get_key) {
-        const keys = new Set();
-        for (let i = 0; i < list.length; i++) {
-            const key = get_key(get_context(ctx, list, i));
-            if (keys.has(key)) {
-                throw new Error('Cannot have duplicate keys in a keyed each');
-            }
-            keys.add(key);
-        }
-    }
     function create_component(block) {
         block && block.c();
     }
@@ -349,7 +346,7 @@ var app = (function () {
         }
         component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
     }
-    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+    function init(component, options, instance, create_fragment, not_equal, props, append_styles, dirty = [-1]) {
         const parent_component = current_component;
         set_current_component(component);
         const $$ = component.$$ = {
@@ -366,12 +363,14 @@ var app = (function () {
             on_disconnect: [],
             before_update: [],
             after_update: [],
-            context: new Map(parent_component ? parent_component.$$.context : options.context || []),
+            context: new Map(options.context || (parent_component ? parent_component.$$.context : [])),
             // everything else
             callbacks: blank_object(),
             dirty,
-            skip_bound: false
+            skip_bound: false,
+            root: options.target || parent_component.$$.root
         };
+        append_styles && append_styles($$.root);
         let ready = false;
         $$.ctx = instance
             ? instance(component, options.props || {}, (i, ret, ...rest) => {
@@ -434,243 +433,232 @@ var app = (function () {
         }
     }
 
-    function dispatch_dev(type, detail) {
-        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.38.2' }, detail)));
-    }
-    function append_dev(target, node) {
-        dispatch_dev('SvelteDOMInsert', { target, node });
-        append(target, node);
-    }
-    function insert_dev(target, node, anchor) {
-        dispatch_dev('SvelteDOMInsert', { target, node, anchor });
-        insert(target, node, anchor);
-    }
-    function detach_dev(node) {
-        dispatch_dev('SvelteDOMRemove', { node });
-        detach(node);
-    }
-    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
-        const modifiers = options === true ? ['capture'] : options ? Array.from(Object.keys(options)) : [];
-        if (has_prevent_default)
-            modifiers.push('preventDefault');
-        if (has_stop_propagation)
-            modifiers.push('stopPropagation');
-        dispatch_dev('SvelteDOMAddEventListener', { node, event, handler, modifiers });
-        const dispose = listen(node, event, handler, options);
-        return () => {
-            dispatch_dev('SvelteDOMRemoveEventListener', { node, event, handler, modifiers });
-            dispose();
-        };
-    }
-    function attr_dev(node, attribute, value) {
-        attr(node, attribute, value);
-        if (value == null)
-            dispatch_dev('SvelteDOMRemoveAttribute', { node, attribute });
-        else
-            dispatch_dev('SvelteDOMSetAttribute', { node, attribute, value });
-    }
-    function prop_dev(node, property, value) {
-        node[property] = value;
-        dispatch_dev('SvelteDOMSetProperty', { node, property, value });
-    }
-    function set_data_dev(text, data) {
-        data = '' + data;
-        if (text.wholeText === data)
-            return;
-        dispatch_dev('SvelteDOMSetData', { node: text, data });
-        text.data = data;
-    }
-    function validate_each_argument(arg) {
-        if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
-            let msg = '{#each} only iterates over array-like objects.';
-            if (typeof Symbol === 'function' && arg && Symbol.iterator in arg) {
-                msg += ' You can use a spread to convert this iterable into an array.';
-            }
-            throw new Error(msg);
-        }
-    }
-    function validate_slots(name, slot, keys) {
-        for (const slot_key of Object.keys(slot)) {
-            if (!~keys.indexOf(slot_key)) {
-                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
-            }
-        }
-    }
-    /**
-     * Base class for Svelte components with some minor dev-enhancements. Used when dev=true.
-     */
-    class SvelteComponentDev extends SvelteComponent {
-        constructor(options) {
-            if (!options || (!options.target && !options.$$inline)) {
-                throw new Error("'target' is a required option");
-            }
-            super();
-        }
-        $destroy() {
-            super.$destroy();
-            this.$destroy = () => {
-                console.warn('Component was already destroyed'); // eslint-disable-line no-console
-            };
-        }
-        $capture_state() { }
-        $inject_state() { }
-    }
-
     const apiBaseUrl$1 = `https://resonant-acute-ranunculus.glitch.me/VSCodeToDo`;
 
-    /* webviews\components\ToDos.svelte generated by Svelte v3.38.2 */
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-    const { console: console_1 } = globals;
-    const file$1 = "webviews\\components\\ToDos.svelte";
+    var dayjs_min = {exports: {}};
+
+    (function (module, exports) {
+    !function(t,e){module.exports=e();}(commonjsGlobal,(function(){var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",f="month",h="quarter",c="year",d="date",$="Invalid Date",l=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},m=function(t,e,n){var r=String(t);return !r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},g={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return (e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return -t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,f),s=n-i<0,u=e.clone().add(r+(s?-1:1),f);return +(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return {M:f,y:c,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:h}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},v="en",D={};D[v]=M;var p=function(t){return t instanceof _},S=function t(e,n,r){var i;if(!e)return v;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else {var a=e.name;D[a]=e,i=a;}return !r&&i&&(v=i),i||!r&&v},w=function(t,e){if(p(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},O=g;O.l=S,O.i=p,O.w=function(t,e){return w(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=S(t.locale,null,!0),this.parse(t);}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(O.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match(l);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.$x=t.x||{},this.init();},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds();},m.$utils=function(){return O},m.isValid=function(){return !(this.$d.toString()===$)},m.isSame=function(t,e){var n=w(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return w(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<w(t)},m.$g=function(t,e,n){return O.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!O.u(e)||e,h=O.p(t),$=function(t,e){var i=O.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},l=function(t,e){return O.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,g="set"+(this.$u?"UTC":"");switch(h){case c:return r?$(1,0):$(31,11);case f:return r?$(1,M):$(0,M+1);case o:var v=this.$locale().weekStart||0,D=(y<v?y+7:y)-v;return $(r?m-D:m+(6-D),M);case a:case d:return l(g+"Hours",0);case u:return l(g+"Minutes",1);case s:return l(g+"Seconds",2);case i:return l(g+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=O.p(t),h="set"+(this.$u?"UTC":""),$=(n={},n[a]=h+"Date",n[d]=h+"Date",n[f]=h+"Month",n[c]=h+"FullYear",n[u]=h+"Hours",n[s]=h+"Minutes",n[i]=h+"Seconds",n[r]=h+"Milliseconds",n)[o],l=o===a?this.$D+(e-this.$W):e;if(o===f||o===c){var y=this.clone().set(d,1);y.$d[$](l),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d;}else $&&this.$d[$](l);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[O.p(t)]()},m.add=function(r,h){var d,$=this;r=Number(r);var l=O.p(h),y=function(t){var e=w($);return O.w(e.date(e.date()+Math.round(t*r)),$)};if(l===f)return this.set(f,this.$M+r);if(l===c)return this.set(c,this.$y+r);if(l===a)return y(1);if(l===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[l]||1,m=this.$d.getTime()+r*M;return O.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||$;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=O.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,f=n.months,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},c=function(t){return O.s(s%12||12,t,"0")},d=n.meridiem||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r},l={YY:String(this.$y).slice(-2),YYYY:this.$y,M:a+1,MM:O.s(a+1,2,"0"),MMM:h(n.monthsShort,a,f,3),MMMM:h(f,a),D:this.$D,DD:O.s(this.$D,2,"0"),d:String(this.$W),dd:h(n.weekdaysMin,this.$W,o,2),ddd:h(n.weekdaysShort,this.$W,o,3),dddd:o[this.$W],H:String(s),HH:O.s(s,2,"0"),h:c(1),hh:c(2),a:d(s,u,!0),A:d(s,u,!1),m:String(u),mm:O.s(u,2,"0"),s:String(this.$s),ss:O.s(this.$s,2,"0"),SSS:O.s(this.$ms,3,"0"),Z:i};return r.replace(y,(function(t,e){return e||l[t]||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,$){var l,y=O.p(d),M=w(r),m=(M.utcOffset()-this.utcOffset())*e,g=this-M,v=O.m(this,M);return v=(l={},l[c]=v/12,l[f]=v,l[h]=v/3,l[o]=(g-m)/6048e5,l[a]=(g-m)/864e5,l[u]=g/n,l[s]=g/e,l[i]=g/t,l)[y]||g,$?v:O.a(v)},m.daysInMonth=function(){return this.endOf(f).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=S(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return O.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),T=_.prototype;return w.prototype=T,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",f],["$y",c],["$D",d]].forEach((function(t){T[t[1]]=function(e){return this.$g(e,t[0],t[1])};})),w.extend=function(t,e){return t.$i||(t(e,_,w),t.$i=!0),w},w.locale=S,w.isDayjs=p,w.unix=function(t){return w(1e3*t)},w.en=D[v],w.Ls=D,w.p={},w}));
+    }(dayjs_min));
+
+    var dayjs = dayjs_min.exports;
+
+    /* webviews\components\ToDos.svelte generated by Svelte v3.46.4 */
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[21] = list[i];
+    	child_ctx[23] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[24] = list[i];
-    	child_ctx[25] = list;
-    	child_ctx[26] = i;
+    	child_ctx[26] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[21] = list[i];
+    	child_ctx[23] = list[i];
     	return child_ctx;
     }
 
-    // (152:4) {#each categorie as categories}
+    // (175:4) {#each categories as category}
     function create_each_block_2(ctx) {
     	let option;
-    	let t0_value = /*categories*/ ctx[21].text + "";
+    	let t0_value = /*category*/ ctx[23].text + "";
     	let t0;
     	let t1;
     	let option_value_value;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			option = element("option");
     			t0 = text(t0_value);
     			t1 = space();
-    			option.__value = option_value_value = /*categories*/ ctx[21].id;
+    			option.__value = option_value_value = /*category*/ ctx[23].id;
     			option.value = option.__value;
-    			add_location(option, file$1, 152, 6, 5185);
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, option, anchor);
-    			append_dev(option, t0);
-    			append_dev(option, t1);
+    		m(target, anchor) {
+    			insert(target, option, anchor);
+    			append(option, t0);
+    			append(option, t1);
     		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*categorie*/ 128 && t0_value !== (t0_value = /*categories*/ ctx[21].text + "")) set_data_dev(t0, t0_value);
+    		p(ctx, dirty) {
+    			if (dirty & /*categories*/ 128 && t0_value !== (t0_value = /*category*/ ctx[23].text + "")) set_data(t0, t0_value);
 
-    			if (dirty & /*categorie*/ 128 && option_value_value !== (option_value_value = /*categories*/ ctx[21].id)) {
-    				prop_dev(option, "__value", option_value_value);
+    			if (dirty & /*categories*/ 128 && option_value_value !== (option_value_value = /*category*/ ctx[23].id)) {
+    				option.__value = option_value_value;
     				option.value = option.__value;
     			}
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(option);
+    		d(detaching) {
+    			if (detaching) detach(option);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block_2.name,
-    		type: "each",
-    		source: "(152:4) {#each categorie as categories}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (178:8) {#if categories.id === todo.categorieId}
+    // (204:8) {#if category.id === todo.categoryId}
     function create_if_block$1(ctx) {
-    	let li;
-    	let t0_value = /*todo*/ ctx[24].text + "";
+    	let article;
+    	let span2;
+    	let span0;
+    	let t0_value = /*todo*/ ctx[26].text + "";
     	let t0;
     	let t1;
+    	let span1;
+    	let t2_value = /*todo*/ ctx[26].targetDateString + "";
+    	let t2;
+    	let t3;
+    	let span3;
+    	let t4;
     	let mounted;
     	let dispose;
 
-    	function click_handler_1() {
-    		return /*click_handler_1*/ ctx[18](/*todo*/ ctx[24], /*each_value_1*/ ctx[25], /*todo_index*/ ctx[26]);
+    	function select_block_type(ctx, dirty) {
+    		if (/*todo*/ ctx[26].completed) return create_if_block_1$1;
+    		return create_else_block$1;
     	}
 
-    	const block = {
-    		c: function create() {
-    			li = element("li");
+    	let current_block_type = select_block_type(ctx);
+    	let if_block = current_block_type(ctx);
+
+    	return {
+    		c() {
+    			article = element("article");
+    			span2 = element("span");
+    			span0 = element("span");
     			t0 = text(t0_value);
     			t1 = space();
-    			attr_dev(li, "class", "svelte-1lbowwj");
-    			toggle_class(li, "completed", /*todo*/ ctx[24].completed);
-    			add_location(li, file$1, 178, 10, 5857);
+    			span1 = element("span");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			span3 = element("span");
+    			if_block.c();
+    			t4 = space();
+    			attr(span0, "class", "todoText col-span-2");
+    			attr(span1, "class", "col-span-2");
+    			attr(span2, "class", "col-span-5 grid grid-cols-4");
+    			toggle_class(span2, "completed", /*todo*/ ctx[26].completed);
+    			toggle_class(span2, "uncompleted", !/*todo*/ ctx[26].completed);
+    			attr(span3, "class", "todoImg col-span-1");
+    			attr(article, "class", "todoArticle pt-2 text-base grid grid-cols-6");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, li, anchor);
-    			append_dev(li, t0);
-    			append_dev(li, t1);
+    		m(target, anchor) {
+    			insert(target, article, anchor);
+    			append(article, span2);
+    			append(span2, span0);
+    			append(span0, t0);
+    			append(span2, t1);
+    			append(span2, span1);
+    			append(span1, t2);
+    			append(article, t3);
+    			append(article, span3);
+    			if_block.m(span3, null);
+    			append(article, t4);
 
     			if (!mounted) {
-    				dispose = listen_dev(li, "click", click_handler_1, false, false, false);
+    				dispose = listen(article, "click", function () {
+    					if (is_function(/*clickToDo*/ ctx[10](/*todo*/ ctx[26]))) /*clickToDo*/ ctx[10](/*todo*/ ctx[26]).apply(this, arguments);
+    				});
+
     				mounted = true;
     			}
     		},
-    		p: function update(new_ctx, dirty) {
+    		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*todos*/ 16 && t0_value !== (t0_value = /*todo*/ ctx[24].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*todos*/ 16 && t0_value !== (t0_value = /*todo*/ ctx[26].text + "")) set_data(t0, t0_value);
+    			if (dirty & /*todos*/ 16 && t2_value !== (t2_value = /*todo*/ ctx[26].targetDateString + "")) set_data(t2, t2_value);
 
     			if (dirty & /*todos*/ 16) {
-    				toggle_class(li, "completed", /*todo*/ ctx[24].completed);
+    				toggle_class(span2, "completed", /*todo*/ ctx[26].completed);
+    			}
+
+    			if (dirty & /*todos*/ 16) {
+    				toggle_class(span2, "uncompleted", !/*todo*/ ctx[26].completed);
+    			}
+
+    			if (current_block_type !== (current_block_type = select_block_type(ctx))) {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(span3, null);
+    				}
     			}
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(li);
+    		d(detaching) {
+    			if (detaching) detach(article);
+    			if_block.d();
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block$1.name,
-    		type: "if",
-    		source: "(178:8) {#if categories.id === todo.categorieId}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (177:6) {#each todos as todo (todo.id)}
+    // (223:14) {:else}
+    function create_else_block$1(ctx) {
+    	let i;
+
+    	return {
+    		c() {
+    			i = element("i");
+    			attr(i, "class", "fa-regular fa-circle-check ml-3 checkedIcon text-2xl");
+    		},
+    		m(target, anchor) {
+    			insert(target, i, anchor);
+    		},
+    		d(detaching) {
+    			if (detaching) detach(i);
+    		}
+    	};
+    }
+
+    // (221:14) {#if todo.completed}
+    function create_if_block_1$1(ctx) {
+    	let i;
+
+    	return {
+    		c() {
+    			i = element("i");
+    			attr(i, "class", "fa-solid fa-circle-check ml-3 checkedIcon text-2xl");
+    		},
+    		m(target, anchor) {
+    			insert(target, i, anchor);
+    		},
+    		d(detaching) {
+    			if (detaching) detach(i);
+    		}
+    	};
+    }
+
+    // (203:6) {#each todos as todo (todo.id)}
     function create_each_block_1(key_1, ctx) {
     	let first;
     	let if_block_anchor;
-    	let if_block = /*categories*/ ctx[21].id === /*todo*/ ctx[24].categorieId && create_if_block$1(ctx);
+    	let if_block = /*category*/ ctx[23].id === /*todo*/ ctx[26].categoryId && create_if_block$1(ctx);
 
-    	const block = {
+    	return {
     		key: key_1,
     		first: null,
-    		c: function create() {
+    		c() {
     			first = empty();
     			if (if_block) if_block.c();
     			if_block_anchor = empty();
     			this.first = first;
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, first, anchor);
+    		m(target, anchor) {
+    			insert(target, first, anchor);
     			if (if_block) if_block.m(target, anchor);
-    			insert_dev(target, if_block_anchor, anchor);
+    			insert(target, if_block_anchor, anchor);
     		},
-    		p: function update(new_ctx, dirty) {
+    		p(new_ctx, dirty) {
     			ctx = new_ctx;
 
-    			if (/*categories*/ ctx[21].id === /*todo*/ ctx[24].categorieId) {
+    			if (/*category*/ ctx[23].id === /*todo*/ ctx[26].categoryId) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
@@ -683,42 +671,30 @@ var app = (function () {
     				if_block = null;
     			}
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(first);
+    		d(detaching) {
+    			if (detaching) detach(first);
     			if (if_block) if_block.d(detaching);
-    			if (detaching) detach_dev(if_block_anchor);
+    			if (detaching) detach(if_block_anchor);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block_1.name,
-    		type: "each",
-    		source: "(177:6) {#each todos as todo (todo.id)}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (171:0) {#each categorie as categories (categories.id)}
+    // (197:0) {#each categories as category (category.id)}
     function create_each_block(key_1, ctx) {
-    	let div;
+    	let section;
     	let h2;
-    	let t0_value = /*categories*/ ctx[21].text + "";
+    	let t0_value = /*category*/ ctx[23].text + "";
     	let t0;
-    	let span;
-    	let t2;
-    	let ul;
+    	let i;
+    	let t1;
+    	let div;
     	let each_blocks = [];
     	let each_1_lookup = new Map();
-    	let t3;
+    	let t2;
     	let mounted;
     	let dispose;
     	let each_value_1 = /*todos*/ ctx[4];
-    	validate_each_argument(each_value_1);
-    	const get_key = ctx => /*todo*/ ctx[24].id;
-    	validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
+    	const get_key = ctx => /*todo*/ ctx[26].id;
 
     	for (let i = 0; i < each_value_1.length; i += 1) {
     		let child_ctx = get_each_context_1(ctx, each_value_1, i);
@@ -726,64 +702,58 @@ var app = (function () {
     		each_1_lookup.set(key, each_blocks[i] = create_each_block_1(key, child_ctx));
     	}
 
-    	const block = {
+    	return {
     		key: key_1,
     		first: null,
-    		c: function create() {
-    			div = element("div");
+    		c() {
+    			section = element("section");
     			h2 = element("h2");
     			t0 = text(t0_value);
-    			span = element("span");
-    			span.textContent = ">";
-    			t2 = space();
-    			ul = element("ul");
+    			i = element("i");
+    			t1 = space();
+    			div = element("div");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			t3 = space();
-    			attr_dev(span, "id", "colIcon");
-    			add_location(span, file$1, 173, 23, 5687);
-    			add_location(h2, file$1, 172, 4, 5616);
-    			attr_dev(ul, "class", "collapsed");
-    			add_location(ul, file$1, 175, 4, 5734);
-    			attr_dev(div, "class", "card");
-    			add_location(div, file$1, 171, 2, 5592);
-    			this.first = div;
+    			t2 = space();
+    			attr(i, "class", "fa-solid fa-arrow-right pl-2");
+    			attr(h2, "class", "categoryHeader text-2xl");
+    			attr(div, "class", "panel");
+    			attr(section, "class", "card");
+    			this.first = section;
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, h2);
-    			append_dev(h2, t0);
-    			append_dev(h2, span);
-    			append_dev(div, t2);
-    			append_dev(div, ul);
+    		m(target, anchor) {
+    			insert(target, section, anchor);
+    			append(section, h2);
+    			append(h2, t0);
+    			append(h2, i);
+    			append(section, t1);
+    			append(section, div);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(ul, null);
+    				each_blocks[i].m(div, null);
     			}
 
-    			append_dev(div, t3);
+    			append(section, t2);
 
     			if (!mounted) {
-    				dispose = listen_dev(h2, "click", /*click_handler*/ ctx[17], false, false, false);
+    				dispose = listen(h2, "click", /*click_handler_1*/ ctx[20]);
     				mounted = true;
     			}
     		},
-    		p: function update(new_ctx, dirty) {
+    		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*categorie*/ 128 && t0_value !== (t0_value = /*categories*/ ctx[21].text + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*categories*/ 128 && t0_value !== (t0_value = /*category*/ ctx[23].text + "")) set_data(t0, t0_value);
 
-    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie*/ 1170) {
+    			if (dirty & /*clickToDo, todos, categories*/ 1168) {
     				each_value_1 = /*todos*/ ctx[4];
-    				validate_each_argument(each_value_1);
-    				validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
-    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value_1, each_1_lookup, ul, destroy_block, create_each_block_1, null, get_each_context_1);
+    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value_1, each_1_lookup, div, destroy_block, create_each_block_1, null, get_each_context_1);
     			}
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
+    		d(detaching) {
+    			if (detaching) detach(section);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].d();
@@ -793,49 +763,47 @@ var app = (function () {
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block.name,
-    		type: "each",
-    		source: "(171:0) {#each categorie as categories (categories.id)}",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function create_fragment$1(ctx) {
-    	let div;
+    	let span;
+    	let p0;
     	let t0;
     	let t1_value = /*user*/ ctx[0].name + "";
     	let t1;
     	let t2;
+    	let i;
+    	let t3;
     	let form0;
     	let input0;
-    	let t3;
-    	let select;
     	let t4;
-    	let form1;
     	let input1;
     	let t5;
+    	let select;
+    	let t6;
+    	let button;
+    	let t8;
+    	let form1;
+    	let p1;
+    	let t10;
+    	let input2;
+    	let t11;
+    	let p2;
+    	let t13;
     	let each_blocks = [];
     	let each1_lookup = new Map();
     	let each1_anchor;
     	let mounted;
     	let dispose;
-    	let each_value_2 = /*categorie*/ ctx[7];
-    	validate_each_argument(each_value_2);
+    	let each_value_2 = /*categories*/ ctx[7];
     	let each_blocks_1 = [];
 
     	for (let i = 0; i < each_value_2.length; i += 1) {
     		each_blocks_1[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
     	}
 
-    	let each_value = /*categorie*/ ctx[7];
-    	validate_each_argument(each_value);
-    	const get_key = ctx => /*categories*/ ctx[21].id;
-    	validate_each_keys(ctx, each_value, get_each_context, get_key);
+    	let each_value = /*categories*/ ctx[7];
+    	const get_key = ctx => /*category*/ ctx[23].id;
 
     	for (let i = 0; i < each_value.length; i += 1) {
     		let child_ctx = get_each_context(ctx, each_value, i);
@@ -843,98 +811,127 @@ var app = (function () {
     		each1_lookup.set(key, each_blocks[i] = create_each_block(key, child_ctx));
     	}
 
-    	const block = {
-    		c: function create() {
-    			div = element("div");
+    	return {
+    		c() {
+    			span = element("span");
+    			p0 = element("p");
     			t0 = text("Hello ");
     			t1 = text(t1_value);
     			t2 = space();
+    			i = element("i");
+    			t3 = space();
     			form0 = element("form");
     			input0 = element("input");
-    			t3 = space();
+    			t4 = space();
+    			input1 = element("input");
+    			t5 = space();
     			select = element("select");
 
     			for (let i = 0; i < each_blocks_1.length; i += 1) {
     				each_blocks_1[i].c();
     			}
 
-    			t4 = space();
+    			t6 = space();
+    			button = element("button");
+    			button.textContent = "Add";
+    			t8 = space();
     			form1 = element("form");
-    			input1 = element("input");
-    			t5 = space();
+    			p1 = element("p");
+    			p1.textContent = "Add Category";
+    			t10 = space();
+    			input2 = element("input");
+    			t11 = space();
+    			p2 = element("p");
+    			p2.textContent = "To Do List";
+    			t13 = space();
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
     			each1_anchor = empty();
-    			add_location(div, file$1, 137, 0, 4807);
-    			attr_dev(input0, "class", "fieldInput");
-    			attr_dev(input0, "placeholder", "Add this todo");
-    			add_location(input0, file$1, 144, 2, 4944);
-    			attr_dev(select, "class", "fieldInput categoryDropdown");
-    			if (/*selected*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[12].call(select));
-    			add_location(select, file$1, 146, 2, 5025);
-    			add_location(form0, file$1, 138, 0, 4837);
-    			attr_dev(input1, "class", "fieldInput categoryDropdown");
-    			attr_dev(input1, "placeholder", "Add category");
-    			add_location(input1, file$1, 164, 2, 5413);
-    			add_location(form1, file$1, 158, 0, 5296);
+    			attr(p0, "class", "text-lg col-span-3");
+    			attr(i, "class", "fa-solid fa-arrow-rotate-right col-span-1 text-lg float-right");
+    			attr(span, "class", "grid grid-cols-4");
+    			attr(input0, "placeholder", "Add this todo");
+    			attr(input1, "type", "datetime-local");
+    			attr(input1, "placeholder", "Add target date");
+    			attr(select, "class", "fieldInput categoryDropdown");
+    			if (/*selected*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[15].call(select));
+    			attr(button, "type", "submit");
+    			attr(p1, "class", "text-lg");
+    			attr(input2, "placeholder", "Add category");
+    			attr(form1, "class", "mt-4 mb-8");
+    			attr(p2, "class", "text-lg");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, t0);
-    			append_dev(div, t1);
-    			insert_dev(target, t2, anchor);
-    			insert_dev(target, form0, anchor);
-    			append_dev(form0, input0);
-    			set_input_value(input0, /*text*/ ctx[2]);
-    			append_dev(form0, t3);
-    			append_dev(form0, select);
+    		m(target, anchor) {
+    			insert(target, span, anchor);
+    			append(span, p0);
+    			append(p0, t0);
+    			append(p0, t1);
+    			append(span, t2);
+    			append(span, i);
+    			insert(target, t3, anchor);
+    			insert(target, form0, anchor);
+    			append(form0, input0);
+    			set_input_value(input0, /*text*/ ctx[1]);
+    			append(form0, t4);
+    			append(form0, input1);
+    			set_input_value(input1, /*targetDate*/ ctx[2]);
+    			append(form0, t5);
+    			append(form0, select);
 
     			for (let i = 0; i < each_blocks_1.length; i += 1) {
     				each_blocks_1[i].m(select, null);
     			}
 
     			select_option(select, /*selected*/ ctx[5]);
-    			insert_dev(target, t4, anchor);
-    			insert_dev(target, form1, anchor);
-    			append_dev(form1, input1);
-    			set_input_value(input1, /*categoryText*/ ctx[3]);
-    			insert_dev(target, t5, anchor);
+    			append(form0, t6);
+    			append(form0, button);
+    			insert(target, t8, anchor);
+    			insert(target, form1, anchor);
+    			append(form1, p1);
+    			append(form1, t10);
+    			append(form1, input2);
+    			set_input_value(input2, /*categoryText*/ ctx[3]);
+    			insert(target, t11, anchor);
+    			insert(target, p2, anchor);
+    			insert(target, t13, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(target, anchor);
     			}
 
-    			insert_dev(target, each1_anchor, anchor);
+    			insert(target, each1_anchor, anchor);
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[11]),
-    					listen_dev(select, "change", /*select_change_handler*/ ctx[12]),
-    					listen_dev(select, "blur", /*blur_handler*/ ctx[13], false, false, false),
-    					listen_dev(form0, "submit", prevent_default(/*submit_handler*/ ctx[14]), false, true, false),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[15]),
-    					listen_dev(form1, "submit", prevent_default(/*submit_handler_1*/ ctx[16]), false, true, false)
+    					listen(i, "click", /*click_handler*/ ctx[12]),
+    					listen(input0, "input", /*input0_input_handler*/ ctx[13]),
+    					listen(input1, "input", /*input1_input_handler*/ ctx[14]),
+    					listen(select, "change", /*select_change_handler*/ ctx[15]),
+    					listen(select, "blur", /*blur_handler*/ ctx[16]),
+    					listen(form0, "submit", prevent_default(/*submit_handler*/ ctx[17])),
+    					listen(input2, "input", /*input2_input_handler*/ ctx[18]),
+    					listen(form1, "submit", prevent_default(/*submit_handler_1*/ ctx[19]))
     				];
 
     				mounted = true;
     			}
     		},
-    		p: function update(ctx, [dirty]) {
-    			if (dirty & /*user*/ 1 && t1_value !== (t1_value = /*user*/ ctx[0].name + "")) set_data_dev(t1, t1_value);
+    		p(ctx, [dirty]) {
+    			if (dirty & /*user*/ 1 && t1_value !== (t1_value = /*user*/ ctx[0].name + "")) set_data(t1, t1_value);
 
-    			if (dirty & /*text*/ 4 && input0.value !== /*text*/ ctx[2]) {
-    				set_input_value(input0, /*text*/ ctx[2]);
+    			if (dirty & /*text*/ 2 && input0.value !== /*text*/ ctx[1]) {
+    				set_input_value(input0, /*text*/ ctx[1]);
     			}
 
-    			if (dirty & /*categorie*/ 128) {
-    				each_value_2 = /*categorie*/ ctx[7];
-    				validate_each_argument(each_value_2);
+    			if (dirty & /*targetDate*/ 4) {
+    				set_input_value(input1, /*targetDate*/ ctx[2]);
+    			}
+
+    			if (dirty & /*categories*/ 128) {
+    				each_value_2 = /*categories*/ ctx[7];
     				let i;
 
     				for (i = 0; i < each_value_2.length; i += 1) {
@@ -956,60 +953,56 @@ var app = (function () {
     				each_blocks_1.length = each_value_2.length;
     			}
 
-    			if (dirty & /*selected, categorie*/ 160) {
+    			if (dirty & /*selected, categories*/ 160) {
     				select_option(select, /*selected*/ ctx[5]);
     			}
 
-    			if (dirty & /*categoryText*/ 8 && input1.value !== /*categoryText*/ ctx[3]) {
-    				set_input_value(input1, /*categoryText*/ ctx[3]);
+    			if (dirty & /*categoryText*/ 8 && input2.value !== /*categoryText*/ ctx[3]) {
+    				set_input_value(input2, /*categoryText*/ ctx[3]);
     			}
 
-    			if (dirty & /*todos, fetch, apiBaseUrl, JSON, accessToken, getToDo, console, tsvscode, categorie, categoryHide*/ 1170) {
-    				each_value = /*categorie*/ ctx[7];
-    				validate_each_argument(each_value);
-    				validate_each_keys(ctx, each_value, get_each_context, get_key);
+    			if (dirty & /*todos, clickToDo, categories, categoryHide*/ 1168) {
+    				each_value = /*categories*/ ctx[7];
     				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each1_lookup, each1_anchor.parentNode, destroy_block, create_each_block, each1_anchor, get_each_context);
     			}
     		},
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
-    			if (detaching) detach_dev(t2);
-    			if (detaching) detach_dev(form0);
+    		d(detaching) {
+    			if (detaching) detach(span);
+    			if (detaching) detach(t3);
+    			if (detaching) detach(form0);
     			destroy_each(each_blocks_1, detaching);
-    			if (detaching) detach_dev(t4);
-    			if (detaching) detach_dev(form1);
-    			if (detaching) detach_dev(t5);
+    			if (detaching) detach(t8);
+    			if (detaching) detach(form1);
+    			if (detaching) detach(t11);
+    			if (detaching) detach(p2);
+    			if (detaching) detach(t13);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].d(detaching);
     			}
 
-    			if (detaching) detach_dev(each1_anchor);
+    			if (detaching) detach(each1_anchor);
     			mounted = false;
     			run_all(dispose);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment$1.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function categoryHide(event) {
-    	if (!event.target.nextElementSibling.classList.contains("collapsed")) {
-    		event.target.nextElementSibling.classList.add("collapsed");
-    		event.target.firstElementChild.classList.remove("expanded");
+    	let target = event.target;
+
+    	if (event.target.localName === 'i') {
+    		target = event.target.parentElement;
+    	}
+
+    	if (target.nextElementSibling.style.maxHeight) {
+    		target.nextElementSibling.style.maxHeight = null;
+    		target.firstElementChild.classList.remove("expandedIcon");
     	} else {
-    		event.target.nextElementSibling.classList.remove("collapsed");
-    		event.target.firstElementChild.classList.add("expanded");
+    		target.nextElementSibling.style.maxHeight = target.nextElementSibling.scrollHeight + "px";
+    		target.firstElementChild.classList.add("expandedIcon");
     	}
     }
 
@@ -1025,135 +1018,95 @@ var app = (function () {
     			element.setAttribute("style", "display: none;");
     		} else {
     			element.removeAttribute("style");
-    			element.setAttribute("style", "display: block;");
     		}
     	}
     }
 
     function instance$1($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("ToDos", slots, []);
-
-    	var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
-    		function adopt(value) {
-    			return value instanceof P
-    			? value
-    			: new P(function (resolve) {
-    						resolve(value);
-    					});
-    		}
-
-    		return new (P || (P = Promise))(function (resolve, reject) {
-    				function fulfilled(value) {
-    					try {
-    						step(generator.next(value));
-    					} catch(e) {
-    						reject(e);
-    					}
-    				}
-
-    				function rejected(value) {
-    					try {
-    						step(generator["throw"](value));
-    					} catch(e) {
-    						reject(e);
-    					}
-    				}
-
-    				function step(result) {
-    					result.done
-    					? resolve(result.value)
-    					: adopt(result.value).then(fulfilled, rejected);
-    				}
-
-    				step((generator = generator.apply(thisArg, _arguments || [])).next());
-    			});
-    	};
-
-    	
     	let { user } = $$props;
     	let { accessToken } = $$props;
     	let text = "";
+    	let targetDate = "";
     	let categoryText = "";
     	let todos = [];
     	let selected;
     	let answer = "";
-    	let categorie = [];
+    	let categories = [];
 
-    	function addToDo(t, categorieId) {
-    		return __awaiter(this, void 0, void 0, function* () {
-    			yield fetch(`${apiBaseUrl$1}/todo`, {
-    				method: "POST",
-    				body: JSON.stringify({ text: t, categorieId }),
-    				headers: {
-    					"content-type": "application/json",
-    					authorization: `Bearer ${accessToken}`
-    				}
-    			});
-
-    			getToDo().then(() => {
-    				
-    			}).catch(() => {
-    				console.log("Getting todos failed");
-    			});
-
-    			setTimeout(
-    				function () {
-    					hideEmptyCategories();
-    				},
-    				100
-    			);
+    	async function addToDo(t, targetDate, categoryId) {
+    		await fetch(`${apiBaseUrl$1}/todo`, {
+    			method: "POST",
+    			body: JSON.stringify({ text: t, targetDate, categoryId }),
+    			headers: {
+    				"content-type": "application/json",
+    				authorization: `Bearer ${accessToken}`
+    			}
     		});
+
+    		getToDo().then(() => {
+    			
+    		}).catch(() => {
+    			console.log("Getting todos failed");
+    		});
+
+    		setTimeout(
+    			function () {
+    				hideEmptyCategories();
+    			},
+    			100
+    		);
     	}
 
-    	function addCategory(t) {
-    		return __awaiter(this, void 0, void 0, function* () {
-    			yield fetch(`${apiBaseUrl$1}/category`, {
-    				method: "POST",
-    				body: JSON.stringify({ categorieText: t }),
-    				headers: {
-    					"content-type": "application/json",
-    					authorization: `Bearer ${accessToken}`
-    				}
-    			});
-
-    			categoryPopulate().then(() => {
-    				
-    			}).catch(() => {
-    				console.log("Getting todos failed");
-    			});
-
-    			setTimeout(
-    				function () {
-    					hideEmptyCategories();
-    				},
-    				100
-    			);
+    	async function addCategory(t) {
+    		await fetch(`${apiBaseUrl$1}/category`, {
+    			method: 'POST',
+    			body: JSON.stringify({ categoryText: t }),
+    			headers: {
+    				'content-type': 'application/json',
+    				authorization: `Bearer ${accessToken}`
+    			}
     		});
+
+    		categoryPopulate().then(() => {
+    			
+    		}).catch(() => {
+    			console.log('Getting todos failed');
+    		});
+
+    		setTimeout(
+    			function () {
+    				hideEmptyCategories();
+    			},
+    			100
+    		);
     	}
 
-    	function getToDo() {
-    		return __awaiter(this, void 0, void 0, function* () {
-    			const response = yield fetch(`${apiBaseUrl$1}/todo`, {
-    				headers: { authorization: `Bearer ${accessToken}` }
-    			});
-
-    			const payload = yield response.json();
-    			$$invalidate(4, todos = payload.data);
-    			return todos;
+    	async function getToDo() {
+    		const response = await fetch(`${apiBaseUrl$1}/todo`, {
+    			headers: { authorization: `Bearer ${accessToken}` }
     		});
+
+    		const payload = await response.json();
+    		$$invalidate(4, todos = payload.data);
+
+    		todos.forEach(todo => {
+    			todo.targetDateString = dayjs(todo.targetDate).format('DD/MM/YYYY HH:mm');
+    		});
+
+    		categoryPopulate();
+    		return todos;
     	}
 
-    	onMount(() => __awaiter(void 0, void 0, void 0, function* () {
-    		window.addEventListener("message", event => __awaiter(void 0, void 0, void 0, function* () {
+    	onMount(async () => {
+    		window.addEventListener("message", async event => {
     			const message = event.data; // The json data that the extension sent
 
     			switch (message.type) {
     				case "new-todo":
-    					addToDo(message.value, selected);
+    					addToDo(message.value, '', selected);
     					break;
     			}
-    		}));
+    		});
 
     		getToDo().then(() => {
     			
@@ -1162,65 +1115,27 @@ var app = (function () {
     		});
 
     		categoryPopulate();
-    	}));
-
-    	function categoryPopulate() {
-    		return __awaiter(this, void 0, void 0, function* () {
-    			const categorieResponse = yield fetch(`${apiBaseUrl$1}/categories`, {
-    				headers: { authorization: `Bearer ${accessToken}` }
-    			});
-
-    			const categoriePayload = yield categorieResponse.json();
-    			$$invalidate(7, categorie = categoriePayload.payload);
-    			$$invalidate(5, selected = categorie[0].id);
-
-    			setTimeout(
-    				function () {
-    					hideEmptyCategories();
-    				},
-    				100
-    			);
-    		});
-    	}
-
-    	const writable_props = ["user", "accessToken"];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<ToDos> was created with unknown prop '${key}'`);
     	});
 
-    	function input0_input_handler() {
-    		text = this.value;
-    		$$invalidate(2, text);
+    	async function categoryPopulate() {
+    		const categoryResponse = await fetch(`${apiBaseUrl$1}/categories`, {
+    			headers: { authorization: `Bearer ${accessToken}` }
+    		});
+
+    		const categoryPayload = await categoryResponse.json();
+    		$$invalidate(7, categories = categoryPayload.payload);
+    		$$invalidate(5, selected = categories[0].id);
+
+    		setTimeout(
+    			function () {
+    				hideEmptyCategories();
+    			},
+    			100
+    		);
     	}
 
-    	function select_change_handler() {
-    		selected = select_value(this);
-    		$$invalidate(5, selected);
-    		$$invalidate(7, categorie);
-    	}
-
-    	const blur_handler = () => $$invalidate(6, answer = "");
-
-    	const submit_handler = async () => {
-    		addToDo(text, selected);
-    		$$invalidate(2, text = "");
-    	};
-
-    	function input1_input_handler() {
-    		categoryText = this.value;
-    		$$invalidate(3, categoryText);
-    	}
-
-    	const submit_handler_1 = async () => {
-    		addCategory(categoryText);
-    		$$invalidate(3, categoryText = "");
-    	};
-
-    	const click_handler = event => categoryHide(event);
-
-    	const click_handler_1 = async (todo, each_value_1, todo_index) => {
-    		$$invalidate(4, each_value_1[todo_index].completed = !todo.completed, todos);
+    	async function clickToDo(todo) {
+    		todo.completed = !todo.completed;
 
     		const response = await fetch(`${apiBaseUrl$1}/todo`, {
     			method: "PUT",
@@ -1246,164 +1161,121 @@ var app = (function () {
 
     		const payload = await response.json();
     		$$invalidate(4, todos = payload.todos);
+    	}
+
+    	const click_handler = () => {
+    		tsvscode.postMessage({ type: "refresh", value: undefined });
     	};
+
+    	function input0_input_handler() {
+    		text = this.value;
+    		$$invalidate(1, text);
+    	}
+
+    	function input1_input_handler() {
+    		targetDate = this.value;
+    		$$invalidate(2, targetDate);
+    	}
+
+    	function select_change_handler() {
+    		selected = select_value(this);
+    		$$invalidate(5, selected);
+    		$$invalidate(7, categories);
+    	}
+
+    	const blur_handler = () => $$invalidate(6, answer = "");
+
+    	const submit_handler = async () => {
+    		addToDo(text, targetDate, selected);
+    		$$invalidate(1, text = "");
+    		$$invalidate(2, targetDate = "");
+    	};
+
+    	function input2_input_handler() {
+    		categoryText = this.value;
+    		$$invalidate(3, categoryText);
+    	}
+
+    	const submit_handler_1 = async () => {
+    		addCategory(categoryText);
+    		$$invalidate(3, categoryText = "");
+    	};
+
+    	const click_handler_1 = event => categoryHide(event);
 
     	$$self.$$set = $$props => {
-    		if ("user" in $$props) $$invalidate(0, user = $$props.user);
-    		if ("accessToken" in $$props) $$invalidate(1, accessToken = $$props.accessToken);
+    		if ('user' in $$props) $$invalidate(0, user = $$props.user);
+    		if ('accessToken' in $$props) $$invalidate(11, accessToken = $$props.accessToken);
     	};
-
-    	$$self.$capture_state = () => ({
-    		__awaiter,
-    		onMount,
-    		children,
-    		apiBaseUrl: apiBaseUrl$1,
-    		user,
-    		accessToken,
-    		text,
-    		categoryText,
-    		todos,
-    		selected,
-    		answer,
-    		categorie,
-    		addToDo,
-    		addCategory,
-    		getToDo,
-    		categoryHide,
-    		categoryPopulate,
-    		hideEmptyCategories
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ("__awaiter" in $$props) __awaiter = $$props.__awaiter;
-    		if ("user" in $$props) $$invalidate(0, user = $$props.user);
-    		if ("accessToken" in $$props) $$invalidate(1, accessToken = $$props.accessToken);
-    		if ("text" in $$props) $$invalidate(2, text = $$props.text);
-    		if ("categoryText" in $$props) $$invalidate(3, categoryText = $$props.categoryText);
-    		if ("todos" in $$props) $$invalidate(4, todos = $$props.todos);
-    		if ("selected" in $$props) $$invalidate(5, selected = $$props.selected);
-    		if ("answer" in $$props) $$invalidate(6, answer = $$props.answer);
-    		if ("categorie" in $$props) $$invalidate(7, categorie = $$props.categorie);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
 
     	return [
     		user,
-    		accessToken,
     		text,
+    		targetDate,
     		categoryText,
     		todos,
     		selected,
     		answer,
-    		categorie,
+    		categories,
     		addToDo,
     		addCategory,
-    		getToDo,
+    		clickToDo,
+    		accessToken,
+    		click_handler,
     		input0_input_handler,
+    		input1_input_handler,
     		select_change_handler,
     		blur_handler,
     		submit_handler,
-    		input1_input_handler,
+    		input2_input_handler,
     		submit_handler_1,
-    		click_handler,
     		click_handler_1
     	];
     }
 
-    class ToDos extends SvelteComponentDev {
+    class ToDos extends SvelteComponent {
     	constructor(options) {
-    		super(options);
-    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { user: 0, accessToken: 1 });
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "ToDos",
-    			options,
-    			id: create_fragment$1.name
-    		});
-
-    		const { ctx } = this.$$;
-    		const props = options.props || {};
-
-    		if (/*user*/ ctx[0] === undefined && !("user" in props)) {
-    			console_1.warn("<ToDos> was created without expected prop 'user'");
-    		}
-
-    		if (/*accessToken*/ ctx[1] === undefined && !("accessToken" in props)) {
-    			console_1.warn("<ToDos> was created without expected prop 'accessToken'");
-    		}
-    	}
-
-    	get user() {
-    		throw new Error("<ToDos>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set user(value) {
-    		throw new Error("<ToDos>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get accessToken() {
-    		throw new Error("<ToDos>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set accessToken(value) {
-    		throw new Error("<ToDos>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    		super();
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { user: 0, accessToken: 11 });
     	}
     }
 
-    /* webviews\components\sidebar.svelte generated by Svelte v3.38.2 */
-    const file = "webviews\\components\\sidebar.svelte";
+    /* webviews\components\sidebar.svelte generated by Svelte v3.46.4 */
 
-    // (81:0) {:else}
     function create_else_block_1(ctx) {
     	let section;
     	let button;
     	let mounted;
     	let dispose;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			section = element("section");
     			button = element("button");
     			button.textContent = "Login with GitHub";
-    			add_location(button, file, 82, 4, 2766);
-    			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 81, 2, 2735);
+    			attr(section, "class", "fade-in");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, section, anchor);
-    			append_dev(section, button);
+    		m(target, anchor) {
+    			insert(target, section, anchor);
+    			append(section, button);
 
     			if (!mounted) {
-    				dispose = listen_dev(button, "click", /*click_handler_3*/ ctx[7], false, false, false);
+    				dispose = listen(button, "click", /*click_handler_3*/ ctx[7]);
     				mounted = true;
     			}
     		},
     		p: noop,
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(section);
+    		d(detaching) {
+    			if (detaching) detach(section);
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block_1.name,
-    		type: "else",
-    		source: "(81:0) {:else}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (47:15) 
+    // (36:15) 
     function create_if_block_1(ctx) {
     	let current_block_type_index;
     	let if_block;
@@ -1424,30 +1296,28 @@ var app = (function () {
     	current_block_type_index = select_block_type_1(ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			if_block.c();
     			t0 = space();
     			section = element("section");
     			button = element("button");
     			button.textContent = "Logout";
-    			add_location(button, file, 72, 4, 2526);
-    			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 71, 2, 2495);
+    			attr(section, "class", "fade-in");
     		},
-    		m: function mount(target, anchor) {
+    		m(target, anchor) {
     			if_blocks[current_block_type_index].m(target, anchor);
-    			insert_dev(target, t0, anchor);
-    			insert_dev(target, section, anchor);
-    			append_dev(section, button);
+    			insert(target, t0, anchor);
+    			insert(target, section, anchor);
+    			append(section, button);
     			current = true;
 
     			if (!mounted) {
-    				dispose = listen_dev(button, "click", /*click_handler_2*/ ctx[6], false, false, false);
+    				dispose = listen(button, "click", /*click_handler_2*/ ctx[6]);
     				mounted = true;
     			}
     		},
-    		p: function update(ctx, dirty) {
+    		p(ctx, dirty) {
     			let previous_block_index = current_block_type_index;
     			current_block_type_index = select_block_type_1(ctx);
 
@@ -1474,140 +1344,109 @@ var app = (function () {
     				if_block.m(t0.parentNode, t0);
     			}
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(if_block);
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(if_block);
     			current = false;
     		},
-    		d: function destroy(detaching) {
+    		d(detaching) {
     			if_blocks[current_block_type_index].d(detaching);
-    			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(section);
+    			if (detaching) detach(t0);
+    			if (detaching) detach(section);
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_1.name,
-    		type: "if",
-    		source: "(47:15) ",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (45:0) {#if loading}
+    // (34:0) {#if loading}
     function create_if_block(ctx) {
     	let div;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			div = element("div");
     			div.textContent = "loading...";
-    			add_location(div, file, 45, 2, 1863);
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
+    		m(target, anchor) {
+    			insert(target, div, anchor);
     		},
     		p: noop,
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
+    		d(detaching) {
+    			if (detaching) detach(div);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block.name,
-    		type: "if",
-    		source: "(45:0) {#if loading}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (57:2) {:else}
+    // (46:2) {:else}
     function create_else_block(ctx) {
     	let section;
     	let div;
     	let t1;
     	let ol;
-    	let li;
-    	let p;
-    	let t3;
+    	let t10;
     	let button;
     	let mounted;
     	let dispose;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			section = element("section");
     			div = element("div");
-    			div.textContent = "Rules:";
+    			div.textContent = "Handy tips:";
     			t1 = space();
     			ol = element("ol");
-    			li = element("li");
-    			p = element("p");
-    			p.textContent = "To Do items are removed 30 days after being completed.";
-    			t3 = space();
+
+    			ol.innerHTML = `<li><p>Before you can add any Things To Do, you need to create a category. 
+            To create a category just type the name into the &#39;Add Category&#39; field press Enter
+            This helps you keep yours Things To Do in manageable areas.</p></li> 
+        <li><p>If you are on a deadline, you can add a target date/time. 
+            When it is 60 minutes before the target date, it will turn yellow.
+            When it is 30 minutes before the target date, it will turn orange.
+            When the target date/time has passed, it will turn red.<br/>
+            A target date/time is optional.</p></li> 
+        <li><p>When the extension is initially loaded the categories are collapsed.
+            To expand on a section click on the category name. To collapse it just click it the same.</p></li> 
+        <li><p>To Do items are removed 30 days after being completed.</p></li>`;
+
+    			t10 = space();
     			button = element("button");
-    			button.textContent = "Go to back";
-    			add_location(div, file, 58, 6, 2192);
-    			add_location(p, file, 61, 10, 2247);
-    			attr_dev(li, "class", "svelte-1g4i4c3");
-    			add_location(li, file, 60, 8, 2231);
-    			add_location(ol, file, 59, 6, 2217);
-    			attr_dev(button, "class", "buttonMargin");
-    			add_location(button, file, 64, 6, 2344);
-    			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 57, 4, 2159);
+    			button.textContent = "Go to my ThingsToDo";
+    			attr(ol, "type", "1");
+    			attr(button, "class", "buttonMargin");
+    			attr(section, "class", "fade-in");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, section, anchor);
-    			append_dev(section, div);
-    			append_dev(section, t1);
-    			append_dev(section, ol);
-    			append_dev(ol, li);
-    			append_dev(li, p);
-    			append_dev(section, t3);
-    			append_dev(section, button);
+    		m(target, anchor) {
+    			insert(target, section, anchor);
+    			append(section, div);
+    			append(section, t1);
+    			append(section, ol);
+    			append(section, t10);
+    			append(section, button);
 
     			if (!mounted) {
-    				dispose = listen_dev(button, "click", /*click_handler_1*/ ctx[5], false, false, false);
+    				dispose = listen(button, "click", /*click_handler_1*/ ctx[5]);
     				mounted = true;
     			}
     		},
     		p: noop,
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(section);
+    		d(detaching) {
+    			if (detaching) detach(section);
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block.name,
-    		type: "else",
-    		source: "(57:2) {:else}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (48:2) {#if page === "todos"}
+    // (37:2) {#if page === "todos"}
     function create_if_block_2(ctx) {
     	let section;
     	let todos;
@@ -1621,72 +1460,58 @@ var app = (function () {
     			props: {
     				user: /*user*/ ctx[3],
     				accessToken: /*accessToken*/ ctx[1]
-    			},
-    			$$inline: true
+    			}
     		});
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			section = element("section");
     			create_component(todos.$$.fragment);
     			t0 = space();
     			button = element("button");
-    			button.textContent = "Go to rule";
-    			attr_dev(button, "class", "buttonMargin");
-    			add_location(button, file, 50, 6, 2004);
-    			attr_dev(section, "class", "fade-in");
-    			add_location(section, file, 48, 4, 1933);
+    			button.textContent = "What can I do with ThingsToDo?";
+    			attr(button, "class", "buttonMargin");
+    			attr(section, "class", "fade-in");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, section, anchor);
+    		m(target, anchor) {
+    			insert(target, section, anchor);
     			mount_component(todos, section, null);
-    			append_dev(section, t0);
-    			append_dev(section, button);
+    			append(section, t0);
+    			append(section, button);
     			current = true;
 
     			if (!mounted) {
-    				dispose = listen_dev(button, "click", /*click_handler*/ ctx[4], false, false, false);
+    				dispose = listen(button, "click", /*click_handler*/ ctx[4]);
     				mounted = true;
     			}
     		},
-    		p: function update(ctx, dirty) {
+    		p(ctx, dirty) {
     			const todos_changes = {};
     			if (dirty & /*user*/ 8) todos_changes.user = /*user*/ ctx[3];
     			if (dirty & /*accessToken*/ 2) todos_changes.accessToken = /*accessToken*/ ctx[1];
     			todos.$set(todos_changes);
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(todos.$$.fragment, local);
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(todos.$$.fragment, local);
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(section);
+    		d(detaching) {
+    			if (detaching) detach(section);
     			destroy_component(todos);
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_2.name,
-    		type: "if",
-    		source: "(48:2) {#if page === \\\"todos\\\"}",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function create_fragment(ctx) {
     	let div;
-    	let h1;
-    	let t1;
+    	let t;
     	let current_block_type_index;
     	let if_block;
     	let if_block_anchor;
@@ -1703,29 +1528,21 @@ var app = (function () {
     	current_block_type_index = select_block_type(ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			div = element("div");
-    			h1 = element("h1");
-    			h1.textContent = "To Do List";
-    			t1 = space();
+    			t = space();
     			if_block.c();
     			if_block_anchor = empty();
-    			add_location(h1, file, 42, 2, 1817);
-    			add_location(div, file, 41, 0, 1808);
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, h1);
-    			insert_dev(target, t1, anchor);
+    		m(target, anchor) {
+    			insert(target, div, anchor);
+    			insert(target, t, anchor);
     			if_blocks[current_block_type_index].m(target, anchor);
-    			insert_dev(target, if_block_anchor, anchor);
+    			insert(target, if_block_anchor, anchor);
     			current = true;
     		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			let previous_block_index = current_block_type_index;
     			current_block_type_index = select_block_type(ctx);
 
@@ -1752,76 +1569,26 @@ var app = (function () {
     				if_block.m(if_block_anchor.parentNode, if_block_anchor);
     			}
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(if_block);
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(if_block);
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div);
-    			if (detaching) detach_dev(t1);
+    		d(detaching) {
+    			if (detaching) detach(div);
+    			if (detaching) detach(t);
     			if_blocks[current_block_type_index].d(detaching);
-    			if (detaching) detach_dev(if_block_anchor);
+    			if (detaching) detach(if_block_anchor);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function instance($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("Sidebar", slots, []);
-
-    	var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
-    		function adopt(value) {
-    			return value instanceof P
-    			? value
-    			: new P(function (resolve) {
-    						resolve(value);
-    					});
-    		}
-
-    		return new (P || (P = Promise))(function (resolve, reject) {
-    				function fulfilled(value) {
-    					try {
-    						step(generator.next(value));
-    					} catch(e) {
-    						reject(e);
-    					}
-    				}
-
-    				function rejected(value) {
-    					try {
-    						step(generator["throw"](value));
-    					} catch(e) {
-    						reject(e);
-    					}
-    				}
-
-    				function step(result) {
-    					result.done
-    					? resolve(result.value)
-    					: adopt(result.value).then(fulfilled, rejected);
-    				}
-
-    				step((generator = generator.apply(thisArg, _arguments || [])).next());
-    			});
-    	};
-
     	var _a;
-    	
     	let accessToken = "";
     	let loading = true;
     	let user = null;
@@ -1830,30 +1597,24 @@ var app = (function () {
     	? void 0
     	: _a.page) || "todos";
 
-    	onMount(() => __awaiter(void 0, void 0, void 0, function* () {
-    		window.addEventListener("message", event => __awaiter(void 0, void 0, void 0, function* () {
+    	onMount(async () => {
+    		window.addEventListener("message", async event => {
     			const message = event.data; // The json data that the extension sent
 
     			switch (message.type) {
     				case "token":
     					$$invalidate(1, accessToken = message.value);
-    					const response = yield fetch(`${apiBaseUrl}/me`, {
+    					const response = await fetch(`${apiBaseUrl}/me`, {
     						headers: { authorization: `Bearer ${accessToken}` }
     					});
-    					const data = yield response.json();
+    					const data = await response.json();
     					$$invalidate(3, user = data.users);
     					$$invalidate(2, loading = false);
     					break;
     			}
-    		}));
+    		});
 
     		tsvscode.postMessage({ type: "get-token", value: undefined });
-    	}));
-
-    	const writable_props = [];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Sidebar> was created with unknown prop '${key}'`);
     	});
 
     	const click_handler = () => {
@@ -1873,30 +1634,6 @@ var app = (function () {
     	const click_handler_3 = () => {
     		tsvscode.postMessage({ type: "authenticate", value: undefined });
     	};
-
-    	$$self.$capture_state = () => ({
-    		__awaiter,
-    		_a,
-    		onMount,
-    		ToDos,
-    		accessToken,
-    		loading,
-    		user,
-    		page
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ("__awaiter" in $$props) __awaiter = $$props.__awaiter;
-    		if ("_a" in $$props) _a = $$props._a;
-    		if ("accessToken" in $$props) $$invalidate(1, accessToken = $$props.accessToken);
-    		if ("loading" in $$props) $$invalidate(2, loading = $$props.loading);
-    		if ("user" in $$props) $$invalidate(3, user = $$props.user);
-    		if ("page" in $$props) $$invalidate(0, page = $$props.page);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
 
     	$$self.$$.update = () => {
     		if ($$self.$$.dirty & /*page*/ 1) {
@@ -1918,17 +1655,10 @@ var app = (function () {
     	];
     }
 
-    class Sidebar extends SvelteComponentDev {
+    class Sidebar extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
     		init(this, options, instance, create_fragment, safe_not_equal, {});
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "Sidebar",
-    			options,
-    			id: create_fragment.name
-    		});
     	}
     }
 
@@ -1938,5 +1668,5 @@ var app = (function () {
 
     return app;
 
-}());
+})();
 //# sourceMappingURL=sidebar.js.map

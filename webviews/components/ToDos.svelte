@@ -16,23 +16,23 @@
     targetDateString: string;
     completed: boolean;
     id: number;
-    categorieId: number;
+    categoryId: number;
   }> = [];
   let selected: number;
   let answer = "";
-  let categorie: Array<{
+  let categories: Array<{
     id: number;
     text: string;
     randomColour: string;
   }> = [];
 
-  async function addToDo(t: string, targetDate: string, categorieId: number) {
+  async function addToDo(t: string, targetDate: string, categoryId: number) {
     const response = await fetch(`${apiBaseUrl}/todo`, {
       method: "POST",
       body: JSON.stringify({
         text: t,
         targetDate: targetDate,
-        categorieId: categorieId,
+        categoryId: categoryId,
       }),
       headers: {
         "content-type": "application/json",
@@ -53,7 +53,7 @@
     const response = await fetch(`${apiBaseUrl}/category`, {
       method: 'POST',
       body: JSON.stringify({
-        categorieText: t,
+        categoryText: t,
       }),
       headers: {
         'content-type': 'application/json',
@@ -118,14 +118,14 @@
     categoryPopulate()
   });
   async function categoryPopulate() {
-    const categorieResponse = await fetch(`${apiBaseUrl}/categories`, {
+    const categoryResponse = await fetch(`${apiBaseUrl}/categories`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
     });
-    const categoriePayload = await categorieResponse.json();
-    categorie = categoriePayload.payload;
-    selected = categorie[0].id;
+    const categoryPayload = await categoryResponse.json();
+    categories = categoryPayload.payload;
+    selected = categories[0].id;
     setTimeout(function () {
       hideEmptyCategories();
     }, 100);
@@ -190,9 +190,9 @@
     on:blur={() => (answer = "")}
     class="fieldInput categoryDropdown"
   >
-    {#each categorie as categories}
-      <option value={categories.id}>
-        {categories.text}
+    {#each categories as category}
+      <option value={category.id}>
+        {category.text}
       </option>
     {/each}
   </select>
@@ -212,14 +212,14 @@
   />
 </form>
 <p class="text-lg">To Do List</p>
-{#each categorie as categories (categories.id)}
+{#each categories as category (category.id)}
   <section class="card">
     <h2 on:click={(event) => categoryHide(event)} class="categoryHeader text-2xl">
-      {categories.text}<i class="fa-solid fa-arrow-right pl-2"></i>
+      {category.text}<i class="fa-solid fa-arrow-right pl-2"></i>
     </h2>
     <div class="panel">
       {#each todos as todo (todo.id)}
-        {#if categories.id === todo.categorieId}
+        {#if category.id === todo.categoryId}
           <article
             class="todoArticle pt-2 text-base grid grid-cols-6"
             on:click={clickToDo(todo)}
