@@ -2,6 +2,10 @@
 
 All notable changes to the Things To Do extension will be documented in this file.
 
+## [2.0.0] - 25/04/2022
+### Changed
+- Category typo fixed. This change will break all previous version, please update to 2.0.0 immediately
+
 ## [0.3.0] - 18/04/2022
 ### Added
 - Target date field added, this allows a user to set a deadline for a ToDo.
@@ -22,7 +26,7 @@ All notable changes to the Things To Do extension will be documented in this fil
 ## [0.2.5] - 04/11/2021
 ### Changed
 - Categories are now linked to the user that added them.
-- To Dos now store categorieId rather that categorieText.
+- To Dos now store categoryId rather that categoryText.
 
 ## [0.2.4] - 02/11/2021
 ### Added
@@ -63,7 +67,7 @@ Removed colours from To Do lists (looked a bit crap)
 ## [0.0.8] - 30/06/2021
 ### Changed
 - Now uses hosted API rather than having to have locally run Express server
-- Fixed issue with selected categorie now being set on load
+- Fixed issue with selected category now being set on load
 
 ## [0.0.7] - 25/05/2021
 ### Changed
